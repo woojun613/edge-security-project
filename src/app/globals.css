@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 라이트 모드일 때도 엣지 있게 */
+  --background: #000000; /* 기본 배경을 블랙으로 */
+  --foreground: #ffffff; /* 기본 글자색을 화이트로 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* 시스템 설정과 상관없이 기본적으로 '다크 모드' 느낌을 주고 싶을 때 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #000000; /* 완전한 블랙으로 변경 */
+    --foreground: #ffffff; /* 완전한 화이트로 변경 */
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* 폰트를 프리텐다드(Pretendard) 같은 현대적인 서체로 바꾸면 훨씬 고급스러워집니다 */
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased; /* 글자를 더 매끄럽게 처리 */
 }
+
+
+#vercel-live-feedback,
+.vercel-toolbar,
+[data-nextjs-static-indicator],
+[data-vercel-toolbar],
+nextjs-portal {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(0) !important;
+}
+

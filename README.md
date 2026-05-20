@@ -23,10 +23,10 @@
 보안은 '해킹 당한 후' 대응하는 것이 아닙니다. 엣지시큐리티의 실시간 분석 시스템은 "공격자가 틈을 노릴 수 있는 모든 환경적 위험 요소를 제거하는 것"에서 시작합니다.
 
 ## 🛠️ Tech Stack
-- **Framework:** Next.js (App Router)
-- **Styling:** Tailwind CSS
-- **Database/Auth:** Supabase
-- **Security Logic:** Edge Middleware
+- Framework: Next.js (App Router)
+- Styling: Tailwind CSS
+- Database/Auth: Supabase
+- Security Logic: Edge Middleware
 
 ## 🚀 Getting Started
 ```bash

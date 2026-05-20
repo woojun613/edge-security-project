@@ -1,4 +1,3 @@
-// src/middleware.ts
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -29,24 +28,37 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // [수정 포인트] /admin 경로 접근 제어
+  // 1. /admin 경로 접근 제어 (인증이 필요한 영역)
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
-
-    // ⭐️ 중요: DB의 profiles 테이블 권한 확인 (RPC나 직접 쿼리가 안되므로 metadata 우선 활용)
-    // 혹은 metadata에 role이 아직 'user'로 남아있는지 확인해보세요.
-    if (user.user_metadata?.role !== 'admin') {
-       // 만약 DB만 수정하고 metadata를 안바꿨다면 여기서 걸릴 수 있습니다.
-       // 테스트를 위해 이 조건문만 잠시 주석 처리해보고 접속되는지 보세요.
-       // return NextResponse.redirect(new URL('/', request.url)) 
-    }
   }
+
+  // 2. 보안 점수 측정 로직 (모든 방문자에게 적용!)
+  let score = 50; 
+  const requestHeaders = request.headers;
+  
+  // HTTPS 확인
+  if (requestHeaders.get('x-forwarded-proto') === 'https') score += 30;
+  
+  // 브라우저 환경 보안 점수
+  const ua = requestHeaders.get('user-agent') || '';
+  if (ua.includes('Windows') || ua.includes('Mac OS X')) score += 20;
+  
+  // 계산된 점수를 쿠키에 저장
+  // 모든 경로에서 점수를 사용할 수 있도록 'if' 문 밖으로 뺐습니다.
+  console.log("🔥 Middleware 스캔 실행! 점수:", score);
+  response.cookies.set('security-score', score.toString(), { 
+    path: '/', 
+    httpOnly: false,
+    secure: false, 
+    sameSite: 'lax'
+  });
 
   return response
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }

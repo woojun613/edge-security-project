@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SideMenu from "@/components/SideMenu";
 import PageViewTracker from "@/components/PageViewTracker";
+import SecurityReportBanner from "@/components/SecurityReportBanner";
 
 export const metadata: Metadata = {
   title: "Edge Security | 정보보안 컨설팅",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         
         <div className="relative z-10">
+          <SecurityReportBanner />
           <Footer />
         </div>
         

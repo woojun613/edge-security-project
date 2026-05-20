@@ -40,35 +40,41 @@ export default function IntegratedAdminPage() {
     setLoading(true);
     
     if (activeTab === 'analytics') {
-      // 최근 7일 날짜 계산
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // 오늘 포함 7일
       sevenDaysAgo.setHours(0, 0, 0, 0);
 
-      // Supabase에서 최근 7일간의 방문 기록 가져오기
       const { data, error } = await supabase
         .from('page_views')
         .select('created_at')
         .gte('created_at', sevenDaysAgo.toISOString());
 
       if (data && !error) {
-        const todayStr = new Date().toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '/').replace('.', '');
+        // 💡 날짜를 무조건 "MM/DD" 형태로 예쁘게 뽑아주는 도우미 함수
+        const formatDate = (date: Date) => {
+          const m = String(date.getMonth() + 1).padStart(2, '0');
+          const d = String(date.getDate()).padStart(2, '0');
+          return `${m}/${d}`;
+        };
+
+        const todayStr = formatDate(new Date());
 
         // 최근 7일 날짜 배열 뼈대 만들기 (예: '05/14', '05/15')
         const last7Days = Array.from({ length: 7 }).map((_, i) => {
           const d = new Date();
           d.setDate(d.getDate() - (6 - i));
-          return d.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '/').replace('.', '');
+          return formatDate(d);
         });
 
-        // 날짜별로 방문자 수 카운팅
+        // 날짜별로 방문자 수 카운팅 (0으로 초기화)
         const counts: { [key: string]: number } = {};
         last7Days.forEach(date => { counts[date] = 0; });
 
+        // DB 데이터와 날짜 매칭해서 숫자 올리기
         data.forEach(row => {
-          const dateStr = new Date(row.created_at).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '/').replace('.', '');
-          if (counts[dateStr] !== undefined) {
-            counts[dateStr] += 1;
+          const rowDate = formatDate(new Date(row.created_at));
+          if (counts[rowDate] !== undefined) {
+            counts[rowDate] += 1;
           }
         });
 
@@ -76,7 +82,7 @@ export default function IntegratedAdminPage() {
         setWeeklyVisitors(last7Days.map(date => ({ date, count: counts[date] })));
         setStats({
           today: counts[todayStr] || 0,
-          total: data.length // 최근 7일 누적 방문자
+          total: data.length
         });
       }
     } else if (activeTab === 'contacts') {
@@ -165,6 +171,7 @@ export default function IntegratedAdminPage() {
                 <h3 className="text-xl font-bold mb-8">주간 방문자 추이</h3>
                 
                 {/* 데이터가 없을 때의 화면 처리 */}
+                {/* 차트 영역 */}
                 {stats.total === 0 ? (
                   <div className="h-64 flex items-center justify-center text-zinc-500">
                     아직 수집된 방문자 데이터가 없습니다.
@@ -174,7 +181,8 @@ export default function IntegratedAdminPage() {
                     {weeklyVisitors.map((data, index) => {
                       const barHeight = (data.count / maxVisitorCount) * 100;
                       return (
-                        <div key={index} className="flex-1 flex flex-col items-center gap-4 group">
+                        // 💡 핵심 수정: 여기에 h-full과 justify-end를 추가해서 막대가 오를 수 있는 기둥을 세웠습니다!
+                        <div key={index} className="flex-1 flex flex-col justify-end items-center gap-4 group h-full">
                           <div className="relative w-full flex justify-center h-full items-end">
                             <div className="absolute -top-10 bg-black text-white text-xs font-bold py-1 px-3 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 border border-white/10">
                               {data.count}명

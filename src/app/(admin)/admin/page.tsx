@@ -23,27 +23,75 @@ interface Profile {
 }
 
 export default function IntegratedAdminPage() {
-  const [activeTab, setActiveTab] = useState<'contacts' | 'members'>('contacts');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'contacts' | 'members'>('analytics');
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. 데이터 불러오기 (통합)
+  // 💡 1. 방문자 통계를 담을 실제 상태(State) 추가
+  const [weeklyVisitors, setWeeklyVisitors] = useState<{ date: string; count: number }[]>([]);
+  const [stats, setStats] = useState({ today: 0, total: 0 });
+
+  // 차트 높이 비율을 계산하기 위한 가장 높은 방문자 수 (데이터가 0일 때 에러 방지용으로 기본값 1 설정)
+  const maxVisitorCount = Math.max(...weeklyVisitors.map(v => v.count), 1);
+
+  // 💡 2. 데이터 불러오기 (통합)
   const fetchData = async () => {
     setLoading(true);
-    if (activeTab === 'contacts') {
+    
+    if (activeTab === 'analytics') {
+      // 최근 7일 날짜 계산
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // 오늘 포함 7일
+      sevenDaysAgo.setHours(0, 0, 0, 0);
+
+      // Supabase에서 최근 7일간의 방문 기록 가져오기
+      const { data, error } = await supabase
+        .from('page_views')
+        .select('created_at')
+        .gte('created_at', sevenDaysAgo.toISOString());
+
+      if (data && !error) {
+        const todayStr = new Date().toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '/').replace('.', '');
+
+        // 최근 7일 날짜 배열 뼈대 만들기 (예: '05/14', '05/15')
+        const last7Days = Array.from({ length: 7 }).map((_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          return d.toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '/').replace('.', '');
+        });
+
+        // 날짜별로 방문자 수 카운팅
+        const counts: { [key: string]: number } = {};
+        last7Days.forEach(date => { counts[date] = 0; });
+
+        data.forEach(row => {
+          const dateStr = new Date(row.created_at).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '/').replace('.', '');
+          if (counts[dateStr] !== undefined) {
+            counts[dateStr] += 1;
+          }
+        });
+
+        // 차트와 상단 요약본 상태 업데이트
+        setWeeklyVisitors(last7Days.map(date => ({ date, count: counts[date] })));
+        setStats({
+          today: counts[todayStr] || 0,
+          total: data.length // 최근 7일 누적 방문자
+        });
+      }
+    } else if (activeTab === 'contacts') {
       const { data } = await supabase.from('contacts').select('*').order('created_at', { ascending: false });
       setContacts(data || []);
-    } else {
+    } else if (activeTab === 'members') {
       const { data } = await supabase.from('profiles').select('*').order('updated_at', { ascending: false });
       setProfiles(data || []);
     }
+    
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
-  // 2. 회원 권한 변경 로직
   const toggleRole = async (userId: string, currentRole: string) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
     const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
@@ -62,19 +110,22 @@ export default function IntegratedAdminPage() {
             <p className="text-[#C273FF] text-sm font-bold tracking-widest mb-2 uppercase">Command Center</p>
             <h1 className="text-4xl font-extrabold tracking-tighter">통합 관리 시스템</h1>
             
-            {/* 탭 버튼 세트 */}
-            <div className="flex gap-4 mt-8">
-              {['contacts', 'members'].map((tab) => (
+            <div className="flex flex-wrap gap-4 mt-8">
+              {[
+                { id: 'analytics', label: '📊 트래픽 통계' },
+                { id: 'contacts', label: '📩 문의 내역' },
+                { id: 'members', label: '👥 회원 관리' }
+              ].map((tab) => (
                 <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab as any)}
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
                   className={`text-sm font-bold px-6 py-2 rounded-full transition-all ${
-                    activeTab === tab 
+                    activeTab === tab.id 
                     ? 'bg-[#C273FF] text-white shadow-[0_0_20px_rgba(194,115,255,0.3)]' 
                     : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300 border border-white/5'
                   }`}
                 >
-                  {tab === 'contacts' ? '📩 문의 내역' : '👥 회원 관리'}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -94,8 +145,58 @@ export default function IntegratedAdminPage() {
             <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-center py-40">
               <div className="w-10 h-10 border-4 border-[#C273FF]/20 border-t-[#C273FF] rounded-full animate-spin" />
             </motion.div>
+          ) : activeTab === 'analytics' ? (
+            
+            /* 💡 3. 실제 DB 데이터가 연동된 통계 화면 */
+            <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl">
+                  <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">오늘 방문자</p>
+                  <p className="text-4xl font-black text-white">{stats.today} <span className="text-zinc-500 text-sm font-normal ml-2">명</span></p>
+                </div>
+                <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl">
+                  <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">주간 누적 방문자</p>
+                  <p className="text-4xl font-black text-white">{stats.total} <span className="text-zinc-500 text-sm font-normal ml-2">명</span></p>
+                </div>
+              </div>
+
+              <div className="bg-zinc-900/50 border border-white/5 p-8 rounded-2xl">
+                <h3 className="text-xl font-bold mb-8">주간 방문자 추이</h3>
+                
+                {/* 데이터가 없을 때의 화면 처리 */}
+                {stats.total === 0 ? (
+                  <div className="h-64 flex items-center justify-center text-zinc-500">
+                    아직 수집된 방문자 데이터가 없습니다.
+                  </div>
+                ) : (
+                  <div className="h-64 flex items-end gap-2 md:gap-8 mt-10">
+                    {weeklyVisitors.map((data, index) => {
+                      const barHeight = (data.count / maxVisitorCount) * 100;
+                      return (
+                        <div key={index} className="flex-1 flex flex-col items-center gap-4 group">
+                          <div className="relative w-full flex justify-center h-full items-end">
+                            <div className="absolute -top-10 bg-black text-white text-xs font-bold py-1 px-3 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 border border-white/10">
+                              {data.count}명
+                            </div>
+                            <motion.div 
+                              initial={{ height: 0 }}
+                              animate={{ height: `${barHeight}%` }}
+                              transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
+                              className="w-full max-w-[40px] bg-gradient-to-t from-[#C273FF]/10 to-[#C273FF] rounded-t-md opacity-70 group-hover:opacity-100 transition-opacity"
+                            />
+                          </div>
+                          <span className="text-zinc-500 text-[10px] md:text-xs font-medium">{data.date}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </motion.div>
           ) : activeTab === 'contacts' ? (
-            /* 탭 1: 문의 관리 섹션 */
+            
+            /* 문의 내역 */
             <motion.div key="contacts" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 gap-6">
               {contacts.length === 0 ? (
                 <div className="text-center py-40 text-zinc-500">접수된 문의가 없습니다.</div>
@@ -123,7 +224,8 @@ export default function IntegratedAdminPage() {
               )}
             </motion.div>
           ) : (
-            /* 탭 2: 회원 관리 섹션 */
+            
+            /* 회원 관리 */
             <motion.div key="members" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
               className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden">
               <table className="w-full text-left">

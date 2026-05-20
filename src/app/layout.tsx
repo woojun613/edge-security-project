@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SideMenu from "@/components/SideMenu";
+import PageViewTracker from "@/components/PageViewTracker";
 
 export const metadata: Metadata = {
   title: "Edge Security | 정보보안 컨설팅",
@@ -13,7 +14,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className="bg-black text-white antialiased flex flex-col min-h-screen relative">
-        
+        {/* 페이지 뷰 트래킹 컴포넌트 */}
+        <PageViewTracker />
         {/* 헤더를 최상단(z-100)으로 올려서 사이드 메뉴가 헤더를 못 가리게 방어! */}
         <div className="relative z-[100]">
           <Header />

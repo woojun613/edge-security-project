@@ -48,7 +48,6 @@ export async function middleware(request: NextRequest) {
   
   // 계산된 점수를 쿠키에 저장
   // 모든 경로에서 점수를 사용할 수 있도록 'if' 문 밖으로 뺐습니다.
-  console.log("🔥 Middleware 스캔 실행! 점수:", score);
   response.cookies.set('security-score', score.toString(), { 
     path: '/', 
     httpOnly: false,

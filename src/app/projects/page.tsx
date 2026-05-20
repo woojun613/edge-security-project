@@ -104,7 +104,6 @@ export default function ProjectsPage() {
 
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
 
-                {/* 컨텐츠 (Line-height 조정) */}
                 <div className="absolute inset-0 p-12 flex flex-col justify-end">
                   <p className="text-[#C273FF] text-xs font-bold tracking-[0.2em] uppercase mb-3">
                     {project.subtitle}
@@ -146,9 +145,14 @@ export default function ProjectsPage() {
             엣지시큐리티는 고객사의 특수한 환경과 요구사항에 맞춘 <br className="hidden md:block" /> 
             전용 보안 아키텍처 설계 및 컨설팅 서비스를 제공합니다.
           </p>
-          <button className="px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-[#C273FF] hover:text-white transition-all duration-500">
+          
+          <Link 
+            href="/contact"
+            className="inline-block px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-[#C273FF] hover:text-white transition-all duration-500 cursor-pointer"
+          >
             기술 협력 문의하기
-          </button>
+          </Link>
+          
         </motion.div>
 
       </div>

@@ -6,7 +6,8 @@ export default function SideMenu() {
   };
 
   return (
-    <aside className="fixed right-8 top-1/2 -translate-y-1/2 z-[100] flex flex-col gap-5">
+    // 💡 핵심 수정: hidden md:flex 추가, flex 중복 제거, z-index 50으로 하향
+    <aside className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-[50] flex-col gap-5">
       {/* 블로그 아이콘 */}
       <SideItem href="https://blog.naver.com/edgesecurity" label="Blog" icon="B" />
       <SideItem href="https://www.instagram.com/p/DROx4nZE8SY/" label="Insta" icon="I" />

@@ -2,15 +2,13 @@
 
 import React from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
+import Link from 'next/link'; // 💡 1. Next.js Link 컴포넌트를 불러옵니다.
 
 export default function AboutPage() {
   
-  // 2. Variants 대신 HTMLMotionProps 타입을 사용합니다. 
-  // 이렇게 하면 viewport, transition, initial 등을 모두 한 바구니에 담을 수 있습니다.
   const fadeInVariant: HTMLMotionProps<"section"> = {
     initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
-    // 이제 viewport의 once와 transition의 duration에 빨간 줄이 생기지 않습니다.
     viewport: { once: true, margin: "-100px" },
     transition: { duration: 0.8, ease: "easeOut" }
   };
@@ -166,9 +164,14 @@ export default function AboutPage() {
       >
         <div className="max-w-3xl mx-auto relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold mb-8">안전한 비즈니스의 시작,<br />지금 엣지시큐리티와 상의하세요</h2>
-          <button className="px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-[#C273FF] hover:text-white transition-all duration-500 transform active:scale-95">
+          
+          {/* 💡 2. button 태그를 Link 컴포넌트로 변경했습니다. */}
+          <Link 
+            href="/contact" 
+            className="inline-block px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-[#C273FF] hover:text-white transition-all duration-500 transform active:scale-95 cursor-pointer"
+          >
             문의하기 →
-          </button>
+          </Link>
         </div>
         <div className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 text-[15rem] font-black text-white/[0.02] whitespace-nowrap pointer-events-none select-none">
           EDGE SECURITY

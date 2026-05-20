@@ -13,14 +13,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body className="bg-black text-white antialiased flex flex-col min-h-screen relative">
-        <Header />
-        <div className="flex-1">
-          {children}
-        </div>
-        <Footer />
         
-        {/* 가장 나중에 선언해서 무조건 맨 위로 올립니다 */}
+        {/* 헤더를 최상단(z-100)으로 올려서 사이드 메뉴가 헤더를 못 가리게 방어! */}
+        <div className="relative z-[100]">
+          <Header />
+        </div>
+        
+        <main className="flex-1 relative z-10">
+          {children}
+        </main>
+        
+        <div className="relative z-10">
+          <Footer />
+        </div>
+        
+        {/* 껍데기를 벗기고 본체만 둡니다. 제어는 SideMenu 내부에서 합니다. */}
         <SideMenu /> 
+        
       </body>
     </html>
   );

@@ -46,11 +46,11 @@ export default function IntegratedAdminPage() {
 
       const { data, error } = await supabase
         .from('page_views')
-        .select('created_at')
+        // 💡 변경 1: 중복을 걸러내기 위해 'ip_address'도 같이 가져옵니다!
+        .select('created_at, ip_address') 
         .gte('created_at', sevenDaysAgo.toISOString());
 
       if (data && !error) {
-        // 💡 날짜를 무조건 "MM/DD" 형태로 예쁘게 뽑아주는 도우미 함수
         const formatDate = (date: Date) => {
           const m = String(date.getMonth() + 1).padStart(2, '0');
           const d = String(date.getDate()).padStart(2, '0');
@@ -59,30 +59,33 @@ export default function IntegratedAdminPage() {
 
         const todayStr = formatDate(new Date());
 
-        // 최근 7일 날짜 배열 뼈대 만들기 (예: '05/14', '05/15')
         const last7Days = Array.from({ length: 7 }).map((_, i) => {
           const d = new Date();
           d.setDate(d.getDate() - (6 - i));
           return formatDate(d);
         });
 
-        // 날짜별로 방문자 수 카운팅 (0으로 초기화)
-        const counts: { [key: string]: number } = {};
-        last7Days.forEach(date => { counts[date] = 0; });
+        // 💡 변경 2: 숫자가 아닌 Set(중복 제거 주머니)을 준비합니다.
+        const uniqueIpsPerDate: { [key: string]: Set<string> } = {};
+        last7Days.forEach(date => { uniqueIpsPerDate[date] = new Set(); });
 
-        // DB 데이터와 날짜 매칭해서 숫자 올리기
+        // 💡 변경 3: 데이터를 돌면서 IP 주소를 주머니에 던져 넣습니다. (알아서 중복 제거됨)
         data.forEach(row => {
           const rowDate = formatDate(new Date(row.created_at));
-          if (counts[rowDate] !== undefined) {
-            counts[rowDate] += 1;
+          if (uniqueIpsPerDate[rowDate] !== undefined && row.ip_address) {
+            uniqueIpsPerDate[rowDate].add(row.ip_address);
           }
         });
 
-        // 차트와 상단 요약본 상태 업데이트
+        // 💡 변경 4: 최종 방문자 수 = 주머니 안에 남은 순수한 IP의 개수(.size)
+        const counts: { [key: string]: number } = {};
+        last7Days.forEach(date => { counts[date] = uniqueIpsPerDate[date].size; });
+
         setWeeklyVisitors(last7Days.map(date => ({ date, count: counts[date] })));
         setStats({
           today: counts[todayStr] || 0,
-          total: data.length
+          // 누적 방문자도 중복을 제거하고 싶다면 전체 데이터의 고유 IP 수를 구합니다.
+          total: new Set(data.map(row => row.ip_address).filter(Boolean)).size 
         });
       }
     } else if (activeTab === 'contacts') {

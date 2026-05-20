@@ -17,7 +17,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  /* 폰트를 프리텐다드(Pretendard) 같은 현대적인 서체로 바꾸면 훨씬 고급스러워집니다 */
+  /* 프리텐다드(Pretendard) */
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
   -webkit-font-smoothing: antialiased; /* 글자를 더 매끄럽게 처리 */
 }

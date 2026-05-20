@@ -28,14 +28,14 @@ export default function IntegratedAdminPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 💡 1. 방문자 통계를 담을 실제 상태(State) 추가
+  // 방문자 통계를 담을 실제 상태(State) 추가
   const [weeklyVisitors, setWeeklyVisitors] = useState<{ date: string; count: number }[]>([]);
   const [stats, setStats] = useState({ today: 0, total: 0 });
 
   // 차트 높이 비율을 계산하기 위한 가장 높은 방문자 수 (데이터가 0일 때 에러 방지용으로 기본값 1 설정)
   const maxVisitorCount = Math.max(...weeklyVisitors.map(v => v.count), 1);
 
-  // 💡 2. 데이터 불러오기 (통합)
+  // 데이터 불러오기 (통합)
   const fetchData = async () => {
     setLoading(true);
     
@@ -46,7 +46,7 @@ export default function IntegratedAdminPage() {
 
       const { data, error } = await supabase
         .from('page_views')
-        // 💡 변경 1: 중복을 걸러내기 위해 'ip_address'도 같이 가져옵니다!
+        // 중복을 걸러내기 위해 'ip_address'도 같이 가져옵니다!
         .select('created_at, ip_address') 
         .gte('created_at', sevenDaysAgo.toISOString());
 
@@ -65,11 +65,11 @@ export default function IntegratedAdminPage() {
           return formatDate(d);
         });
 
-        // 💡 변경 2: 숫자가 아닌 Set(중복 제거 주머니)을 준비합니다.
+        // 숫자가 아닌 Set(중복 제거 주머니)을 준비합니다.
         const uniqueIpsPerDate: { [key: string]: Set<string> } = {};
         last7Days.forEach(date => { uniqueIpsPerDate[date] = new Set(); });
 
-        // 💡 변경 3: 데이터를 돌면서 IP 주소를 주머니에 던져 넣습니다. (알아서 중복 제거됨)
+        // 데이터를 돌면서 IP 주소를 주머니에 던져 넣습니다. (알아서 중복 제거됨)
         data.forEach(row => {
           const rowDate = formatDate(new Date(row.created_at));
           if (uniqueIpsPerDate[rowDate] !== undefined && row.ip_address) {
@@ -77,7 +77,7 @@ export default function IntegratedAdminPage() {
           }
         });
 
-        // 💡 변경 4: 최종 방문자 수 = 주머니 안에 남은 순수한 IP의 개수(.size)
+        // 최종 방문자 수 = 주머니 안에 남은 순수한 IP의 개수(.size)
         const counts: { [key: string]: number } = {};
         last7Days.forEach(date => { counts[date] = uniqueIpsPerDate[date].size; });
 

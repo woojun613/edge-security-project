@@ -275,7 +275,8 @@ export default function Home() {
         </motion.div>
 
         {/* 벤토 박스 그리드 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
+        {/* grid 클래스를 아래처럼 수정 (모바일 높이 자동 설정) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto md:auto-rows-[250px]">
           
           {/* 큰 박스 1: 출판 및 저서 하이라이트 (2칸 차지) */}
           <motion.div 

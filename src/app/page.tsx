@@ -184,7 +184,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.8 }}
-            className="text-zinc-500 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed"
+            className="text-zinc-300 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed"
           >
             엣지시큐리티는 단순한 기술을 넘어 <br className="hidden md:block" />
             사람을 향한 보안 솔루션을 설계하고 구축합니다.

@@ -79,7 +79,7 @@ export default function SecurityReportBanner() {
           
           {/* 오른쪽: 점수, 등급 색상 및 버튼 영역 */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8 w-full md:w-auto mt-2 md:mt-0">
-            {/* 🎨 점수 표시부 옆에 유동적인 등급 색상 텍스트가 정상 배치되었습니다 */}
+            {/* 점수 표시부 옆에 유동적인 등급 색상 텍스트가 정상 배치되었습니다 */}
             <div className="flex items-center gap-6 shrink-0">
               <div className="text-left sm:text-center shrink-0">
                 <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">보안 점수</p>

@@ -289,14 +289,14 @@ export default function Home() {
             {/* 배경 조명 효과 */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#C273FF]/10 blur-[80px] rounded-full group-hover:bg-[#C273FF]/20 transition-colors duration-700" />
             
-            {/* 💡 글씨 영역: 이제 다른 요소와 겹치지 않고 본분에 충실합니다. */}
+            {/* 글씨 영역: 이제 다른 요소와 겹치지 않고 본분에 충실합니다. */}
             <div className="relative z-10 max-w-lg md:max-w-md">
               <span className="px-3 py-1 bg-white/10 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Publications</span>
               <h3 className="text-2xl font-bold mt-4 mb-2">전문 지식의 깊이,<br/>저서로 증명합니다</h3>
               <p className="text-zinc-400 text-sm leading-relaxed">다년간의 실무 경험을 바탕으로 집필된 전문 서적과 최신 AI 보안 가이드북을 통해 업계의 표준을 제시합니다.</p>
             </div>
 
-            {/* 💡 저서 아이콘 영역: 오른쪽 하단 구석으로 이동 & 평소엔 숨김 처리 */}
+            {/* 저서 아이콘 영역: 오른쪽 하단 구석으로 이동 & 평소엔 숨김 처리 */}
             <div className="absolute -bottom-6 right-10 flex gap-2 rotate-[10deg] group-hover:rotate-0 transition-transform duration-500 origin-bottom-right group-hover:bottom-0">
               {/* 책 표지 느낌의 플레이스홀더 */}
               <div className="w-16 h-24 bg-zinc-800 rounded shadow-lg border border-white/5 -rotate-6 transform group-hover:-translate-y-8 transition-transform duration-700"></div>
@@ -313,7 +313,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="group bg-zinc-900/80 backdrop-blur-lg border border-white/5 rounded-3xl p-8 flex flex-col justify-between overflow-hidden relative transition-all duration-300 hover:border-[#484AF7]/30 hover:shadow-[0_0_30px_rgba(72,74,247,0.15)]" // backdrop-blur, hover 효과 추가
           >
-            {/* 💡 배경 효과: 마우스 올렸을 때 나타나는 몽환적인 그라데이션 조명 */}
+            {/* 배경 효과: 마우스 올렸을 때 나타나는 몽환적인 그라데이션 조명 */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0 bg-[radial-gradient(circle_at_var(--mouse-x,50%)_var(--mouse-y,50%),rgba(72,74,247,0.15),transparent_60%)]" />
             
             {/* z-10을 주어 조명 위로 올림 */}
@@ -350,7 +350,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="md:col-span-2 group relative overflow-hidden bg-zinc-900/80 backdrop-blur-lg border border-white/5 rounded-3xl p-10 flex flex-col justify-center items-center text-center transition-all duration-500 hover:border-[#484AF7]/40 hover:shadow-[0_0_40px_rgba(72,74,247,0.1)]"
           >
-            {/* 💡 보안 스캔 격자 무늬 배경 (평소엔 희미하다가 마우스 올리면 선명해짐) */}
+            {/* 보안 스캔 격자 무늬 배경 (평소엔 희미하다가 마우스 올리면 선명해짐) */}
             <div 
               className="absolute inset-0 opacity-5 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none z-0" 
               style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.2) 1px, transparent 0)', backgroundSize: '24px 24px' }} 

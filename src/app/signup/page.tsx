@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -10,31 +10,102 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  
+  // 💡 [추가] 닉네임 중복 확인 관련 상태
+  const [isNicknameChecked, setIsNicknameChecked] = useState(false);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // 페이지 진입 시 로그인 여부 확인 및 리다이렉트
+  useEffect(() => {
+    const checkAlreadyLoggedIn = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        window.location.href = '/'; 
+      }
+    };
+    checkAlreadyLoggedIn();
+  }, []);
+
+  // 💡 [추가] 닉네임 중복 확인 함수
+  const checkNicknameDuplicate = async () => {
+    if (!nickname.trim()) {
+      alert('닉네임을 입력해주세요.');
+      return;
+    }
+
+    setIsCheckingNickname(true);
+
+    try {
+      // profiles 테이블에서 해당 닉네임이 있는지 검색합니다.
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('nickname')
+        .eq('nickname', nickname.trim())
+        .maybeSingle(); // 1개가 나오거나 안 나오거나(null)
+
+      if (error) throw error;
+
+      if (data) {
+        alert('이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.');
+        setIsNicknameChecked(false);
+      } else {
+        alert('사용 가능한 닉네임입니다!');
+        setIsNicknameChecked(true);
+      }
+    } catch (err) {
+      console.error("중복 확인 오류:", err);
+      alert('중복 확인 중 시스템 오류가 발생했습니다.');
+    } finally {
+      setIsCheckingNickname(false);
+    }
+  };
+
+  // 💡 [추가] 사용자가 닉네임을 다시 수정하면 중복 확인 상태를 초기화
+  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNickname(e.target.value);
+    setIsNicknameChecked(false);
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 💡 [추가] 중복 확인을 안 했다면 가입 차단!
+    if (!isNicknameChecked) {
+      alert('닉네임 중복 확인을 진행해주세요.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // 회원가입 시 metadata에 role(권한)과 nickname을 함께 저장합니다.
       const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),      // [중요] 앞뒤 공백 제거
-        password: password.trim(), // [중요] 패스워드 공백 제거
+        email: email.trim(),
+        password: password.trim(),
         options: {
           data: {
-            role: 'user', // 기본 권한은 보안상 항상 'user'로 설정
-            nickname: nickname,
+            role: 'user',
+            nickname: nickname.trim(),
           },
         },
       });
 
       if (error) {
-        alert('회원가입 실패: ' + error.message);
+        if (error.message.includes('already registered')) {
+          alert('이미 가입된 이메일(아이디)입니다. 다른 이메일을 사용하거나 로그인해주세요.');
+        } else {
+          alert('회원가입 실패: ' + error.message);
+        }
       } else {
-        alert('회원가입 신청이 완료되었습니다! 이메일 인증 후 로그인이 가능합니다.');
-        router.push('/login');
+        if (data.session) {
+          alert('회원가입 및 로그인이 완료되었습니다!');
+          window.location.href = '/'; 
+        } else {
+          alert('회원가입 신청이 완료되었습니다! 이메일 인증 후 로그인이 가능합니다.');
+          router.push('/login'); 
+        }
       }
     } catch (err) {
       console.error("시스템 오류:", err);
@@ -46,7 +117,6 @@ export default function SignupPage() {
 
   return (
     <main className="min-h-screen bg-zinc-950 flex items-center justify-center px-6">
-      {/* 배경 그라데이션 효과 */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#C273FF]/10 blur-[120px] rounded-full pointer-events-none" />
       
       <motion.div 
@@ -60,19 +130,39 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSignup} className="space-y-5">
-          {/* 닉네임 입력 */}
+          
+          {/* 💡 닉네임 입력 및 중복 확인 영역 */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Nickname</label>
-            <input 
-              required type="text" 
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="사용하실 이름을 입력하세요"
-              className="w-full bg-zinc-800 border border-white/5 rounded-xl px-4 py-4 text-white focus:border-[#C273FF] outline-none transition-all placeholder:text-zinc-600" 
-            />
+            <div className="flex gap-2">
+              <input 
+                required type="text" 
+                value={nickname}
+                onChange={handleNicknameChange}
+                placeholder="사용하실 이름을 입력하세요"
+                className={`flex-1 bg-zinc-800 border rounded-xl px-4 py-4 text-white outline-none transition-all placeholder:text-zinc-600 ${
+                  isNicknameChecked ? 'border-emerald-500 focus:border-emerald-400' : 'border-white/5 focus:border-[#C273FF]'
+                }`} 
+              />
+              <button 
+                type="button" 
+                onClick={checkNicknameDuplicate}
+                disabled={isCheckingNickname || !nickname.trim() || isNicknameChecked}
+                className={`px-6 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                  isNicknameChecked 
+                  ? 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30'
+                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-white/5'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {isCheckingNickname ? "확인 중..." : isNicknameChecked ? "확인 완료" : "중복 확인"}
+              </button>
+            </div>
+            {/* 상태 안내 텍스트 */}
+            {isNicknameChecked && (
+              <p className="text-emerald-500 text-xs font-bold ml-1 mt-1">사용 가능한 닉네임입니다.</p>
+            )}
           </div>
 
-          {/* 이메일 입력 */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Email Address</label>
             <input 
@@ -84,7 +174,6 @@ export default function SignupPage() {
             />
           </div>
 
-          {/* 비밀번호 입력 */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Password</label>
             <input 

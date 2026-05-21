@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 
@@ -28,25 +28,28 @@ export default function IntegratedAdminPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 방문자 통계를 담을 실제 상태(State) 추가
+  // 방문자 통계 상태
   const [weeklyVisitors, setWeeklyVisitors] = useState<{ date: string; count: number }[]>([]);
   const [stats, setStats] = useState({ today: 0, total: 0 });
 
-  // 차트 높이 비율을 계산하기 위한 가장 높은 방문자 수 (데이터가 0일 때 에러 방지용으로 기본값 1 설정)
+  // 💡 [추가된 부분] 회원 관리 탭을 위한 제어 상태
+  const [memberFilter, setMemberFilter] = useState<'all' | 'admin' | 'user'>('all');
+  const [memberSort, setMemberSort] = useState<'asc' | 'desc'>('asc');
+  const [memberPage, setMemberPage] = useState(1);
+  const MEMBERS_PER_PAGE = 10; // 한 페이지에 보여줄 인원 수
+
   const maxVisitorCount = Math.max(...weeklyVisitors.map(v => v.count), 1);
 
-  // 데이터 불러오기 (통합)
   const fetchData = async () => {
     setLoading(true);
     
     if (activeTab === 'analytics') {
       const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // 오늘 포함 7일
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
       sevenDaysAgo.setHours(0, 0, 0, 0);
 
       const { data, error } = await supabase
         .from('page_views')
-        // 중복을 걸러내기 위해 'ip_address'도 같이 가져옵니다!
         .select('created_at, ip_address') 
         .gte('created_at', sevenDaysAgo.toISOString());
 
@@ -58,18 +61,15 @@ export default function IntegratedAdminPage() {
         };
 
         const todayStr = formatDate(new Date());
-
         const last7Days = Array.from({ length: 7 }).map((_, i) => {
           const d = new Date();
           d.setDate(d.getDate() - (6 - i));
           return formatDate(d);
         });
 
-        // 숫자가 아닌 Set(중복 제거 주머니)을 준비합니다.
         const uniqueIpsPerDate: { [key: string]: Set<string> } = {};
         last7Days.forEach(date => { uniqueIpsPerDate[date] = new Set(); });
 
-        // 데이터를 돌면서 IP 주소를 주머니에 던져 넣습니다. (알아서 중복 제거됨)
         data.forEach(row => {
           const rowDate = formatDate(new Date(row.created_at));
           if (uniqueIpsPerDate[rowDate] !== undefined && row.ip_address) {
@@ -77,14 +77,12 @@ export default function IntegratedAdminPage() {
           }
         });
 
-        // 최종 방문자 수 = 주머니 안에 남은 순수한 IP의 개수(.size)
         const counts: { [key: string]: number } = {};
         last7Days.forEach(date => { counts[date] = uniqueIpsPerDate[date].size; });
 
         setWeeklyVisitors(last7Days.map(date => ({ date, count: counts[date] })));
         setStats({
           today: counts[todayStr] || 0,
-          // 누적 방문자도 중복을 제거하고 싶다면 전체 데이터의 고유 IP 수를 구합니다.
           total: new Set(data.map(row => row.ip_address).filter(Boolean)).size 
         });
       }
@@ -101,6 +99,11 @@ export default function IntegratedAdminPage() {
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
+  // 💡 [추가된 부분] 필터나 정렬이 바뀌면 무조건 1페이지로 되돌아가는 로직
+  useEffect(() => {
+    setMemberPage(1);
+  }, [memberFilter, memberSort]);
+
   const toggleRole = async (userId: string, currentRole: string) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
     const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
@@ -108,6 +111,36 @@ export default function IntegratedAdminPage() {
       setProfiles(profiles.map(p => p.id === userId ? { ...p, role: newRole } : p));
     }
   };
+
+  // 💡 [추가된 부분] 원본 데이터를 건드리지 않고 화면용으로 가공하는 마법의 로직 (useMemo)
+  const processedProfiles = useMemo(() => {
+    let result = [...profiles];
+
+    // 1. 역할 필터링 (Admin/User)
+    if (memberFilter !== 'all') {
+      result = result.filter(p => p.role === memberFilter);
+    }
+
+    // 2. 가나다순 정렬 (닉네임이 없으면 이메일 기준)
+    result.sort((a, b) => {
+      const nameA = (a.nickname || a.email).toLowerCase();
+      const nameB = (b.nickname || b.email).toLowerCase();
+      if (nameA < nameB) return memberSort === 'asc' ? -1 : 1;
+      if (nameA > nameB) return memberSort === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [profiles, memberFilter, memberSort]);
+
+  // 전체 페이지 수 계산
+  const totalPages = Math.max(Math.ceil(processedProfiles.length / MEMBERS_PER_PAGE), 1);
+  
+  // 현재 페이지 번호에 맞게 10명만 잘라내기
+  const currentProfiles = processedProfiles.slice(
+    (memberPage - 1) * MEMBERS_PER_PAGE,
+    memberPage * MEMBERS_PER_PAGE
+  );
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white pt-32 pb-24 px-6">
@@ -142,7 +175,7 @@ export default function IntegratedAdminPage() {
           
           <button 
             onClick={fetchData}
-            className="px-6 py-2 bg-zinc-900 border border-white/10 rounded-lg hover:bg-zinc-800 transition-all text-sm"
+            className="px-6 py-2 bg-zinc-900 border border-white/10 rounded-lg hover:bg-zinc-800 transition-all text-sm font-bold"
           >
             새로고침
           </button>
@@ -156,9 +189,8 @@ export default function IntegratedAdminPage() {
             </motion.div>
           ) : activeTab === 'analytics' ? (
             
-            /* 💡 3. 실제 DB 데이터가 연동된 통계 화면 */
+            /* 통계 화면 (기존과 동일) */
             <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl">
                   <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">오늘 방문자</p>
@@ -172,9 +204,6 @@ export default function IntegratedAdminPage() {
 
               <div className="bg-zinc-900/50 border border-white/5 p-8 rounded-2xl">
                 <h3 className="text-xl font-bold mb-8">주간 방문자 추이</h3>
-                
-                {/* 데이터가 없을 때의 화면 처리 */}
-                {/* 차트 영역 */}
                 {stats.total === 0 ? (
                   <div className="h-64 flex items-center justify-center text-zinc-500">
                     아직 수집된 방문자 데이터가 없습니다.
@@ -184,7 +213,6 @@ export default function IntegratedAdminPage() {
                     {weeklyVisitors.map((data, index) => {
                       const barHeight = (data.count / maxVisitorCount) * 100;
                       return (
-                        // 💡 핵심 수정: 여기에 h-full과 justify-end를 추가해서 막대가 오를 수 있는 기둥을 세웠습니다!
                         <div key={index} className="flex-1 flex flex-col justify-end items-center gap-4 group h-full">
                           <div className="relative w-full flex justify-center h-full items-end">
                             <div className="absolute -top-10 bg-black text-white text-xs font-bold py-1 px-3 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 border border-white/10">
@@ -207,7 +235,7 @@ export default function IntegratedAdminPage() {
             </motion.div>
           ) : activeTab === 'contacts' ? (
             
-            /* 문의 내역 */
+            /* 문의 내역 (기존과 동일) */
             <motion.div key="contacts" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 gap-6">
               {contacts.length === 0 ? (
                 <div className="text-center py-40 text-zinc-500">접수된 문의가 없습니다.</div>
@@ -236,39 +264,115 @@ export default function IntegratedAdminPage() {
             </motion.div>
           ) : (
             
-            /* 회원 관리 */
-            <motion.div key="members" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-white/5 bg-white/[0.02]">
-                    <th className="px-6 py-5 text-xs font-bold text-zinc-500 uppercase tracking-widest">User Info</th>
-                    <th className="px-6 py-5 text-xs font-bold text-zinc-500 uppercase tracking-widest">Role</th>
-                    <th className="px-6 py-5 text-xs font-bold text-zinc-500 uppercase tracking-widest text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {profiles.map((profile) => (
-                    <tr key={profile.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-6">
-                        <div className="text-white font-bold">{profile.nickname || 'Guest'}</div>
-                        <div className="text-zinc-500 text-xs">{profile.email}</div>
-                      </td>
-                      <td className="px-6 py-6">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${profile.role === 'admin' ? 'bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20' : 'bg-zinc-800 text-zinc-500'}`}>
-                          {profile.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-6 text-right">
-                        <button onClick={() => toggleRole(profile.id, profile.role)}
-                          className="text-xs font-bold px-4 py-2 rounded-lg border border-white/10 text-zinc-400 hover:border-[#C273FF] hover:text-[#C273FF] transition-all">
-                          {profile.role === 'admin' ? '권한 해제' : '관리자 승격'}
-                        </button>
-                      </td>
+            /* 💡 회원 관리 (UI 완벽 업그레이드) */
+            <motion.div key="members" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+              
+              {/* 컨트롤 패널 (필터 및 정렬) */}
+              <div className="flex flex-col sm:flex-row justify-between items-center bg-zinc-900/50 border border-white/5 p-4 rounded-xl gap-4">
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                  <select 
+                    value={memberFilter} 
+                    onChange={(e) => setMemberFilter(e.target.value as any)}
+                    className="bg-zinc-800 text-white text-sm font-bold px-4 py-2 rounded-lg border border-white/10 outline-none focus:border-[#C273FF] transition-all cursor-pointer"
+                  >
+                    <option value="all">전체 보기</option>
+                    <option value="admin">관리자만 (Admin)</option>
+                    <option value="user">일반 회원만 (User)</option>
+                  </select>
+                  
+                  <button 
+                    onClick={() => setMemberSort(prev => prev === 'asc' ? 'desc' : 'asc')}
+                    className="flex items-center gap-2 bg-zinc-800 text-white text-sm font-bold px-4 py-2 rounded-lg border border-white/10 hover:border-[#C273FF] hover:text-[#C273FF] transition-all"
+                  >
+                    {memberSort === 'asc' ? '이름 가나다순 ↓' : '이름 역순 ↑'}
+                  </button>
+                </div>
+                <div className="text-zinc-500 text-sm font-bold">
+                  검색 결과: <span className="text-[#C273FF]">{processedProfiles.length}</span>명
+                </div>
+              </div>
+
+              {/* 회원 테이블 영역 */}
+              <div className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-white/5 bg-white/[0.02]">
+                      <th className="px-6 py-5 text-xs font-bold text-zinc-500 uppercase tracking-widest">User Info</th>
+                      <th className="px-6 py-5 text-xs font-bold text-zinc-500 uppercase tracking-widest">Role</th>
+                      <th className="px-6 py-5 text-xs font-bold text-zinc-500 uppercase tracking-widest text-right">Actions</th>
                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {currentProfiles.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="px-6 py-20 text-center text-zinc-500 font-bold">
+                          조건에 맞는 회원이 없습니다.
+                        </td>
+                      </tr>
+                    ) : (
+                      currentProfiles.map((profile) => (
+                        <tr key={profile.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-6 py-6">
+                            <div className="text-white font-bold">{profile.nickname || 'Guest'}</div>
+                            <div className="text-zinc-500 text-xs">{profile.email}</div>
+                          </td>
+                          <td className="px-6 py-6">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                              profile.role === 'admin' 
+                              ? 'bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20' 
+                              : 'bg-zinc-800 text-zinc-500'
+                            }`}>
+                              {profile.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-6 text-right">
+                            <button onClick={() => toggleRole(profile.id, profile.role)}
+                              className="text-xs font-bold px-4 py-2 rounded-lg border border-white/10 text-zinc-400 hover:border-[#C273FF] hover:text-[#C273FF] transition-all">
+                              {profile.role === 'admin' ? '권한 해제' : '관리자 승격'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 페이지네이션 (10명 초과 시 등장) */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-8">
+                  <button 
+                    onClick={() => setMemberPage(p => Math.max(1, p - 1))}
+                    disabled={memberPage === 1}
+                    className="px-3 py-2 rounded-lg bg-zinc-900 border border-white/5 text-white disabled:opacity-30 hover:bg-zinc-800 hover:border-[#C273FF]/50 transition-all font-bold"
+                  >
+                    &lt;
+                  </button>
+                  
+                  {Array.from({ length: totalPages }).map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setMemberPage(idx + 1)}
+                      className={`w-10 h-10 rounded-lg text-sm font-bold flex items-center justify-center transition-all ${
+                        memberPage === idx + 1 
+                        ? 'bg-[#C273FF] text-white shadow-[0_0_15px_rgba(194,115,255,0.4)]' 
+                        : 'bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-[#C273FF]/50'
+                      }`}
+                    >
+                      {idx + 1}
+                    </button>
                   ))}
-                </tbody>
-              </table>
+
+                  <button 
+                    onClick={() => setMemberPage(p => Math.min(totalPages, p + 1))}
+                    disabled={memberPage === totalPages}
+                    className="px-3 py-2 rounded-lg bg-zinc-900 border border-white/5 text-white disabled:opacity-30 hover:bg-zinc-800 hover:border-[#C273FF]/50 transition-all font-bold"
+                  >
+                    &gt;
+                  </button>
+                </div>
+              )}
+
             </motion.div>
           )}
         </AnimatePresence>

@@ -8,15 +8,12 @@ export default function SecurityReportBanner() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [details, setDetails] = useState({ isHttps: false, os: '' });
   
-  // 📸 배너 캡처용이 아닌, '숨겨진 A4 보고서'를 찍을 새로운 렌즈
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 점수 가져오기
     const cookie = document.cookie.split('; ').find(row => row.startsWith('security-score='));
     if (cookie) setScore(parseInt(cookie.split('=')[1]));
     
-    // 상세 분석 이유(Why)를 리포트에 적기 위해 클라이언트 환경 재확인
     setDetails({
       isHttps: window.location.protocol === 'https:',
       os: navigator.userAgent
@@ -28,16 +25,14 @@ export default function SecurityReportBanner() {
     setIsGenerating(true);
 
     try {
-      // 1. 화면 밖에 숨겨진 A4 보고서를 캡처
       const dataUrl = await toPng(reportRef.current, {
         pixelRatio: 2,
-        backgroundColor: '#ffffff', // 보고서는 깔끔한 흰색 배경
+        backgroundColor: '#ffffff',
       });
       
       const width = reportRef.current.offsetWidth;
       const height = reportRef.current.offsetHeight;
       
-      // 2. A4 세로 비율에 맞춘 PDF 생성
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
@@ -63,8 +58,6 @@ export default function SecurityReportBanner() {
   };
 
   const status = getStatus(score);
-
-  // OS 정보 정제 (간단히 표시)
   const osName = details.os.includes('Windows') ? 'Windows' : details.os.includes('Mac OS') ? 'Mac OS' : '기타/모바일';
 
   return (
@@ -84,11 +77,17 @@ export default function SecurityReportBanner() {
             <p className="text-zinc-300 text-sm break-keep">{status.desc}</p>
           </div>
           
-          {/* 오른쪽: 점수 및 버튼 영역 */}
+          {/* 오른쪽: 점수, 등급 색상 및 버튼 영역 */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8 w-full md:w-auto mt-2 md:mt-0">
-            <div className="text-left sm:text-center shrink-0">
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">보안 점수</p>
-              <p className="text-3xl font-black text-white">{score}<span className="text-zinc-600 text-sm font-normal">/100</span></p>
+            {/* 🎨 점수 표시부 옆에 유동적인 등급 색상 텍스트가 정상 배치되었습니다 */}
+            <div className="flex items-center gap-6 shrink-0">
+              <div className="text-left sm:text-center shrink-0">
+                <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">보안 점수</p>
+                <p className="text-3xl font-black text-white">{score}<span className="text-zinc-600 text-sm font-normal">/100</span></p>
+              </div>
+              <div className={`text-xl font-black ${status.color} tracking-wider shrink-0`}>
+                {status.text}
+              </div>
             </div>
             
             <button 
@@ -108,19 +107,16 @@ export default function SecurityReportBanner() {
       </div>
 
       {/* 2. PDF 출력용으로만 쓰이는 "숨겨진" A4 보고서 영역 */}
-      {/* 화면 밖으로 멀리 던져놔서(-left-[9999px]) 사용자는 볼 수 없지만, 카메라는 찍을 수 있습니다. */}
       <div className="fixed top-0 -left-[9999px] z-[-1]">
         <div 
           ref={reportRef} 
-          className="w-[794px] min-h-[1123px] bg-white text-black p-12 flex flex-col" // A4 사이즈 규격(96dpi 기준)
+          className="w-[794px] min-h-[1123px] bg-white text-black p-12 flex flex-col"
         >
-          {/* 리포트 헤더 */}
           <div className="border-b-4 border-black pb-6 mb-8">
             <h1 className="text-4xl font-black mb-2">실시간 접속 환경 진단 리포트</h1>
             <p className="text-gray-500 text-lg">Edge Security Intelligence System</p>
           </div>
 
-          {/* 종합 평가 */}
           <div className="bg-gray-100 p-8 rounded-2xl mb-8 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">종합 보안 점수</h2>
@@ -134,7 +130,6 @@ export default function SecurityReportBanner() {
             </div>
           </div>
 
-          {/* 상세 취약점 분석 표 */}
           <h3 className="text-xl font-bold mb-4 border-l-4 border-black pl-3">항목별 상세 진단 결과</h3>
           <table className="w-full text-left border-collapse mb-8">
             <thead>
@@ -145,7 +140,6 @@ export default function SecurityReportBanner() {
               </tr>
             </thead>
             <tbody>
-              {/* 1. 네트워크 통신 경로 */}
               <tr className="border-b border-gray-300">
                 <td className="p-4 font-bold bg-gray-50">네트워크 암호화 (HTTPS)</td>
                 <td className={`p-4 font-bold ${details.isHttps ? 'text-green-600' : 'text-red-600'}`}>
@@ -158,7 +152,6 @@ export default function SecurityReportBanner() {
                 </td>
               </tr>
               
-              {/* 2. 클라이언트 환경 */}
               <tr className="border-b border-gray-300">
                 <td className="p-4 font-bold bg-gray-50">클라이언트 운영체제</td>
                 <td className="p-4 font-bold text-blue-600">{osName} 환경</td>
@@ -167,7 +160,6 @@ export default function SecurityReportBanner() {
                 </td>
               </tr>
 
-              {/* 3. 기본 보안 정책 */}
               <tr className="border-b border-gray-300">
                 <td className="p-4 font-bold bg-gray-50">엣지 접속 정책 검증</td>
                 <td className="p-4 font-bold text-green-600">통과 (Pass)</td>
@@ -178,7 +170,6 @@ export default function SecurityReportBanner() {
             </tbody>
           </table>
 
-          {/* 조치 권고안 (컨설팅 영역) */}
           <div className="bg-red-50 border border-red-200 p-6 rounded-xl mt-auto">
             <h3 className="text-red-800 font-bold mb-2">💡 엣지시큐리티 전문가 권고안</h3>
             <p className="text-red-700 text-sm leading-relaxed">
@@ -188,7 +179,6 @@ export default function SecurityReportBanner() {
             </p>
           </div>
 
-          {/* 푸터 */}
           <div className="text-center mt-8 pt-8 border-t border-gray-200 text-gray-400 text-sm">
             <p>본 리포트는 엣지시큐리티(Edge Security) 미들웨어를 통해 실시간으로 자동 생성되었습니다.</p>
             <p>보안 컨설팅 문의: contact@edgesecurity.com</p>

@@ -4,7 +4,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 
-// 인터페이스 정의
 interface Contact {
   id: string;
   name: string;
@@ -32,11 +31,16 @@ export default function IntegratedAdminPage() {
   const [weeklyVisitors, setWeeklyVisitors] = useState<{ date: string; count: number }[]>([]);
   const [stats, setStats] = useState({ today: 0, total: 0 });
 
-  // 💡 [추가된 부분] 회원 관리 탭을 위한 제어 상태
+  // 회원 관리 탭 상태
   const [memberFilter, setMemberFilter] = useState<'all' | 'admin' | 'user'>('all');
   const [memberSort, setMemberSort] = useState<'asc' | 'desc'>('asc');
   const [memberPage, setMemberPage] = useState(1);
-  const MEMBERS_PER_PAGE = 10; // 한 페이지에 보여줄 인원 수
+  const MEMBERS_PER_PAGE = 10; 
+
+  // 💡 [추가] 문의 내역 탭 상태
+  const [contactSort, setContactSort] = useState<'date_desc' | 'date_asc' | 'name_asc' | 'name_desc'>('date_desc');
+  const [contactPage, setContactPage] = useState(1);
+  const CONTACTS_PER_PAGE = 5; // 문의 카드는 크기가 커서 5개로 제한
 
   const maxVisitorCount = Math.max(...weeklyVisitors.map(v => v.count), 1);
 
@@ -87,10 +91,10 @@ export default function IntegratedAdminPage() {
         });
       }
     } else if (activeTab === 'contacts') {
-      const { data } = await supabase.from('contacts').select('*').order('created_at', { ascending: false });
+      const { data } = await supabase.from('contacts').select('*');
       setContacts(data || []);
     } else if (activeTab === 'members') {
-      const { data } = await supabase.from('profiles').select('*').order('updated_at', { ascending: false });
+      const { data } = await supabase.from('profiles').select('*');
       setProfiles(data || []);
     }
     
@@ -99,10 +103,10 @@ export default function IntegratedAdminPage() {
 
   useEffect(() => { fetchData(); }, [activeTab]);
 
-  // 💡 [추가된 부분] 필터나 정렬이 바뀌면 무조건 1페이지로 되돌아가는 로직
-  useEffect(() => {
-    setMemberPage(1);
-  }, [memberFilter, memberSort]);
+  useEffect(() => { setMemberPage(1); }, [memberFilter, memberSort]);
+  
+  // 💡 [추가] 정렬 기준이 바뀌면 문의 내역도 1페이지로 복귀
+  useEffect(() => { setContactPage(1); }, [contactSort]);
 
   const toggleRole = async (userId: string, currentRole: string) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
@@ -112,16 +116,12 @@ export default function IntegratedAdminPage() {
     }
   };
 
-  // 💡 [추가된 부분] 원본 데이터를 건드리지 않고 화면용으로 가공하는 마법의 로직 (useMemo)
+  // 회원 데이터 가공
   const processedProfiles = useMemo(() => {
     let result = [...profiles];
-
-    // 1. 역할 필터링 (Admin/User)
     if (memberFilter !== 'all') {
       result = result.filter(p => p.role === memberFilter);
     }
-
-    // 2. 가나다순 정렬 (닉네임이 없으면 이메일 기준)
     result.sort((a, b) => {
       const nameA = (a.nickname || a.email).toLowerCase();
       const nameB = (b.nickname || b.email).toLowerCase();
@@ -129,18 +129,27 @@ export default function IntegratedAdminPage() {
       if (nameA > nameB) return memberSort === 'asc' ? 1 : -1;
       return 0;
     });
-
     return result;
   }, [profiles, memberFilter, memberSort]);
 
-  // 전체 페이지 수 계산
   const totalPages = Math.max(Math.ceil(processedProfiles.length / MEMBERS_PER_PAGE), 1);
-  
-  // 현재 페이지 번호에 맞게 10명만 잘라내기
-  const currentProfiles = processedProfiles.slice(
-    (memberPage - 1) * MEMBERS_PER_PAGE,
-    memberPage * MEMBERS_PER_PAGE
-  );
+  const currentProfiles = processedProfiles.slice((memberPage - 1) * MEMBERS_PER_PAGE, memberPage * MEMBERS_PER_PAGE);
+
+  // 💡 [추가] 문의 내역 데이터 가공
+  const processedContacts = useMemo(() => {
+    let result = [...contacts];
+    result.sort((a, b) => {
+      if (contactSort === 'date_desc') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (contactSort === 'date_asc') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (contactSort === 'name_asc') return a.name.localeCompare(b.name);
+      if (contactSort === 'name_desc') return b.name.localeCompare(a.name);
+      return 0;
+    });
+    return result;
+  }, [contacts, contactSort]);
+
+  const totalContactPages = Math.max(Math.ceil(processedContacts.length / CONTACTS_PER_PAGE), 1);
+  const currentContacts = processedContacts.slice((contactPage - 1) * CONTACTS_PER_PAGE, contactPage * CONTACTS_PER_PAGE);
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white pt-32 pb-24 px-6">
@@ -189,7 +198,7 @@ export default function IntegratedAdminPage() {
             </motion.div>
           ) : activeTab === 'analytics' ? (
             
-            /* 통계 화면 (기존과 동일) */
+            /* 통계 화면 */
             <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-zinc-900/50 border border-white/5 p-6 rounded-2xl">
@@ -235,39 +244,97 @@ export default function IntegratedAdminPage() {
             </motion.div>
           ) : activeTab === 'contacts' ? (
             
-            /* 문의 내역 (기존과 동일) */
-            <motion.div key="contacts" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 gap-6">
-              {contacts.length === 0 ? (
-                <div className="text-center py-40 text-zinc-500">접수된 문의가 없습니다.</div>
-              ) : (
-                contacts.map((item, index) => (
-                  <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}
-                    className="bg-zinc-900/50 border border-white/5 p-8 rounded-2xl hover:border-[#C273FF]/30 transition-all">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                      <div className="space-y-4 flex-1">
-                        <div className="flex items-center gap-3">
-                          <span className="px-3 py-1 bg-[#C273FF]/10 text-[#C273FF] text-[10px] font-bold rounded-full uppercase">Inquiry</span>
-                          <span className="text-zinc-500 text-xs">{new Date(item.created_at).toLocaleString()}</span>
+            /* 💡 문의 내역 (UI 완벽 업그레이드) */
+            <motion.div key="contacts" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+              
+              {/* 컨트롤 패널 (정렬) */}
+              <div className="flex flex-col sm:flex-row justify-between items-center bg-zinc-900/50 border border-white/5 p-4 rounded-xl gap-4">
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                  <select 
+                    value={contactSort} 
+                    onChange={(e) => setContactSort(e.target.value as any)}
+                    className="bg-zinc-800 text-white text-sm font-bold px-4 py-2 rounded-lg border border-white/10 outline-none focus:border-[#C273FF] transition-all cursor-pointer"
+                  >
+                    <option value="date_desc">최신순 ↓</option>
+                    <option value="date_asc">과거순 ↑</option>
+                    <option value="name_asc">이름 가나다순 ↓</option>
+                    <option value="name_desc">이름 역순 ↑</option>
+                  </select>
+                </div>
+                <div className="text-zinc-500 text-sm font-bold">
+                  총 <span className="text-[#C273FF]">{processedContacts.length}</span>건의 문의
+                </div>
+              </div>
+
+              {/* 문의 카드 리스트 */}
+              <div className="grid grid-cols-1 gap-6">
+                {currentContacts.length === 0 ? (
+                  <div className="text-center py-40 text-zinc-500 border border-white/5 rounded-2xl bg-zinc-900/50">접수된 문의가 없습니다.</div>
+                ) : (
+                  currentContacts.map((item, index) => (
+                    <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}
+                      className="bg-zinc-900/50 border border-white/5 p-8 rounded-2xl hover:border-[#C273FF]/30 transition-all">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                        <div className="space-y-4 flex-1">
+                          <div className="flex items-center gap-3">
+                            <span className="px-3 py-1 bg-[#C273FF]/10 text-[#C273FF] text-[10px] font-bold rounded-full uppercase">Inquiry</span>
+                            <span className="text-zinc-500 text-xs">{new Date(item.created_at).toLocaleString()}</span>
+                          </div>
+                          <h3 className="text-xl font-bold">{item.name} <span className="text-zinc-500 text-sm font-normal ml-2">{item.company}</span></h3>
+                          <p className="text-zinc-400 leading-relaxed bg-black/30 p-6 rounded-xl border border-white/5 whitespace-pre-wrap">{item.message}</p>
                         </div>
-                        <h3 className="text-xl font-bold">{item.name} <span className="text-zinc-500 text-sm font-normal ml-2">{item.company}</span></h3>
-                        <p className="text-zinc-400 leading-relaxed bg-black/30 p-6 rounded-xl border border-white/5 whitespace-pre-wrap">{item.message}</p>
+                        <div className="flex md:flex-col gap-2">
+                          <a href={`mailto:${item.email}`} className="flex-1 md:w-32 py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-[#C273FF] hover:text-white transition-all text-center flex items-center justify-center">답변하기</a>
+                          <button onClick={async () => { if(confirm('삭제하시겠습니까?')) { await supabase.from('contacts').delete().eq('id', item.id); fetchData(); } }}
+                            className="flex-1 md:w-32 py-2 bg-zinc-800 text-zinc-400 text-xs font-bold rounded-lg hover:bg-red-500/20 hover:text-red-500 transition-all">삭제</button>
+                        </div>
                       </div>
-                      <div className="flex md:flex-col gap-2">
-                        <button className="flex-1 md:w-32 py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-[#C273FF] hover:text-white transition-all">답변하기</button>
-                        <button onClick={async () => { if(confirm('삭제하시겠습니까?')) { await supabase.from('contacts').delete().eq('id', item.id); fetchData(); } }}
-                          className="flex-1 md:w-32 py-2 bg-zinc-800 text-zinc-400 text-xs font-bold rounded-lg hover:bg-red-500/20 hover:text-red-500 transition-all">삭제</button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  ))
+                )}
+              </div>
+
+              {/* 페이지네이션 */}
+              {totalContactPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-8">
+                  <button 
+                    onClick={() => setContactPage(p => Math.max(1, p - 1))}
+                    disabled={contactPage === 1}
+                    className="px-3 py-2 rounded-lg bg-zinc-900 border border-white/5 text-white disabled:opacity-30 hover:bg-zinc-800 hover:border-[#C273FF]/50 transition-all font-bold"
+                  >
+                    &lt;
+                  </button>
+                  
+                  {Array.from({ length: totalContactPages }).map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setContactPage(idx + 1)}
+                      className={`w-10 h-10 rounded-lg text-sm font-bold flex items-center justify-center transition-all ${
+                        contactPage === idx + 1 
+                        ? 'bg-[#C273FF] text-white shadow-[0_0_15px_rgba(194,115,255,0.4)]' 
+                        : 'bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 hover:border-[#C273FF]/50'
+                      }`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+
+                  <button 
+                    onClick={() => setContactPage(p => Math.min(totalContactPages, p + 1))}
+                    disabled={contactPage === totalContactPages}
+                    className="px-3 py-2 rounded-lg bg-zinc-900 border border-white/5 text-white disabled:opacity-30 hover:bg-zinc-800 hover:border-[#C273FF]/50 transition-all font-bold"
+                  >
+                    &gt;
+                  </button>
+                </div>
               )}
             </motion.div>
           ) : (
             
-            /* 💡 회원 관리 (UI 완벽 업그레이드) */
+            /* 회원 관리 (기존과 동일) */
             <motion.div key="members" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               
-              {/* 컨트롤 패널 (필터 및 정렬) */}
+              {/* 컨트롤 패널 */}
               <div className="flex flex-col sm:flex-row justify-between items-center bg-zinc-900/50 border border-white/5 p-4 rounded-xl gap-4">
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                   <select 
@@ -292,7 +359,7 @@ export default function IntegratedAdminPage() {
                 </div>
               </div>
 
-              {/* 회원 테이블 영역 */}
+              {/* 회원 테이블 */}
               <div className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden">
                 <table className="w-full text-left">
                   <thead>
@@ -338,7 +405,7 @@ export default function IntegratedAdminPage() {
                 </table>
               </div>
 
-              {/* 페이지네이션 (10명 초과 시 등장) */}
+              {/* 페이지네이션 */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-8">
                   <button 

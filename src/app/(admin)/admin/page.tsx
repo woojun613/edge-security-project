@@ -420,7 +420,28 @@ export default function IntegratedAdminPage() {
                         </div>
                         <div className="flex flex-row md:flex-col gap-2 pt-2 md:pt-0">
                           <a href={`mailto:${item.email}`} className="flex-1 md:w-28 py-3 md:py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-[#C273FF] hover:text-white transition-all text-center flex items-center justify-center">답변하기</a>
-                          <button onClick={async () => { if(confirm('삭제하시겠습니까?')) { await supabase.from('contacts').delete().eq('id', item.id); fetchData(); } }} className="flex-1 md:w-28 py-3 md:py-2 bg-zinc-800 text-zinc-400 text-xs font-bold rounded-lg hover:bg-red-500/20 hover:text-red-500 transition-all">삭제</button>
+                          <button 
+                            onClick={async () => { 
+                              if(confirm('정말 삭제하시겠습니까?')) { 
+                                // 1. 실제 삭제 실행
+                                const { error: deleteError } = await supabase
+                                  .from('contacts')
+                                  .delete()
+                                  .eq('id', item.id);
+
+                                if (deleteError) {
+                                  console.error("삭제 에러:", deleteError);
+                                  alert("삭제 실패: " + deleteError.message);
+                                } else {
+                                  alert("성공적으로 삭제되었습니다!");
+                                  fetchData(); // 화면을 새로고침해서 목록을 갱신합니다.
+                                }
+                              } 
+                            }}
+                            className="flex-1 md:w-28 py-3 md:py-2 bg-zinc-800 text-zinc-400 text-xs font-bold rounded-lg hover:bg-red-500/20 hover:text-red-500 transition-all"
+                          >
+                            삭제
+                          </button>
                         </div>
                       </div>
                     </motion.div>

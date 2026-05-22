@@ -7,8 +7,6 @@
 
 엣지시큐리티는 사용자의 보안을 수동적인 모니터링에 맡기지 않습니다. 접속자의 환경을 실시간으로 분석하여 잠재적인 위협을 선제적으로 감지하는 지능형 보안 검문소(Edge Middleware)를 운영합니다.
 
-
-
 ### 🔍 분석 메커니즘
 모든 접속은 서버 진입 전, 미들웨어 레이어에서 아래 3가지 지표를 기반으로 즉각적인 보안 무결성 평가를 거칩니다.
 
@@ -35,11 +33,34 @@
 
 이 기능을 통해 고객은 자신의 취약점과 엣지시큐리티의 전문가 권고안이 담긴 리포트를 단 1초 만에 받아볼 수 있으며, 이는 컨설팅 업무의 즉시성과 신뢰도를 극대화합니다.
 
+## 🧪 Interactive Security Lab: 고객 참여형 보안 진단
+
+단순한 텍스트 경고를 넘어, 고객이 직접 보안 취약점을 체감할 수 있는 인터랙티브 컴포넌트를 제공합니다.
+
+- Password Cracking Analyzer: `zxcvbn` 알고리즘을 활용하여 사용자가 입력한 비밀번호가 다크웹 해킹 사전(Dictionary)에 의해 크래킹되는 소요 시간을 실시간으로 계산합니다.
+- Local Processing: 보안 원칙에 따라 입력된 비밀번호 데이터는 서버로 전송되지 않으며, 오직 클라이언트 브라우저 내에서만 안전하게 연산 처리됩니다.
+- Dynamic UX: 비밀번호의 강도에 따라 UI의 색상과 빛(Glow) 효과가 변화하여 직관적인 피드백을 제공합니다.
+
+## 🔐 Authentication & Access Control: 지능형 권한 관리
+
+Supabase Auth 및 Row Level Security(RLS)를 활용하여 기업 수준의 철저한 접근 제어 시스템을 구축했습니다.
+
+- Middleware Routing: 서버 사이드에서 세션을 검증하여 비정상적인 접근(예: 로그인된 사용자의 중복 로그인 시도, 비인가자의 어드민 페이지 접근)을 렌더링 이전에 원천 차단합니다.
+- Database RLS: 데이터베이스 단에서 읽기/쓰기 권한을 엄격하게 분리하여, 클라이언트에서 발생하는 악의적인 쿼리 변조 공격을 방어합니다.
+
+## 📊 Integrated Admin Dashboard: 통합 중앙 제어 시스템
+
+관리자가 플랫폼의 상태를 한눈에 파악하고 제어할 수 있는 모바일 최적화 대시보드를 제공합니다.
+
+- Traffic Analytics: 고유 IP(Unique IP)를 추적하여 일일 및 주간 누적 트래픽을 차트로 시각화합니다.
+- Client-Side Optimization: `useMemo` 훅을 활용하여 수많은 문의 내역과 회원 데이터를 서버 재요청 없이 브라우저 내에서 즉각적으로 필터링, 정렬, 페이지네이션(Pagination) 처리합니다. 
+
 ## 🛠️ Tech Stack
 - Framework: Next.js (App Router)
-- Styling: Tailwind CSS
-- Database/Auth: Supabase
+- Styling & UI: Tailwind CSS, Framer Motion
+- Database/Auth: Supabase (Auth, RLS)
 - Security Logic: Edge Middleware
+- Security Analysis: zxcvbn (Password Strength Estimation)
 - Report Engine: html-to-image, jsPDF
 
 ## 🚀 Getting Started

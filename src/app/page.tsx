@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import PasswordAnalyzer from '@/components/PasswordAnalyzer';
 
 export default function Home() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -371,6 +372,8 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 4. 비밀번호 분석기 섹션 */}
+      <PasswordAnalyzer />
     </main>
   );
 }

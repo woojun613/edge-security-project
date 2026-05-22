@@ -8,20 +8,23 @@ import { supabase } from "@/lib/supabase";
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
-  // 💡 1. 모바일 메뉴 열림/닫힘 상태를 관리하는 State 추가
+  // 💡 1. 닉네임 상태 추가
+  const [nickname, setNickname] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
   const fetchProfile = async (userId: string) => {
     try {
+      // 💡 2. select에 nickname 추가
       const { data, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, nickname')
         .eq('id', userId)
         .single();
       
       if (!error && data) {
         setRole(data.role);
+        setNickname(data.nickname); // 💡 3. 닉네임 저장
       }
     } catch (err) {
       console.error("프로필 로드 에러:", err);
@@ -44,6 +47,7 @@ export default function Header() {
         fetchProfile(currentUser.id);
       } else {
         setRole(null);
+        setNickname(null); // 로그아웃 시 초기화
       }
     });
 
@@ -53,12 +57,11 @@ export default function Header() {
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
-      setIsMobileMenuOpen(false); // 로그아웃 시 모바일 메뉴 닫기
+      setIsMobileMenuOpen(false);
       router.push('/');
     }
   };
 
-  // 💡 모바일 메뉴 링크 클릭 시 메뉴 닫아주는 함수
   const handleLinkClick = () => {
     setIsMobileMenuOpen(false);
   };
@@ -67,14 +70,12 @@ export default function Header() {
     <header className="fixed top-0 left-0 w-full h-20 border-b border-white/10 bg-black/80 backdrop-blur-md z-50">
       <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-6">
         
-        {/* 로고 영역 */}
         <Link href="/" onClick={handleLinkClick} className="text-xl font-bold tracking-tighter text-white hover:opacity-80 transition-opacity z-50">
           EDGE SECURITY
         </Link>
 
-        {/* --- [PC 버전 메뉴 + 인증 영역] --- */}
+        {/* --- [PC 버전] --- */}
         <div className="hidden md:flex items-center gap-8">
-          
           <nav className="flex gap-8">
             <Link href="/about" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">소개</Link>
             <Link href="/projects" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">프로젝트</Link>
@@ -96,10 +97,18 @@ export default function Header() {
                   {role === 'admin' ? (
                     <span className="bg-gradient-to-r from-[#B4BEFF] to-[#CA57FF] bg-clip-text text-transparent font-bold">관리자</span>
                   ) : (
-                    <span className="text-zinc-200 font-medium">{user.user_metadata?.nickname || user.email?.split('@')[0]}</span>
+                    // 💡 4. DB에서 가져온 nickname을 가장 먼저 보여주도록 우선순위 변경
+                    <span className="text-zinc-200 font-medium">
+                      {nickname || user.user_metadata?.nickname || user.email?.split('@')[0]}
+                    </span>
                   )}
                   <span className="text-zinc-500">님</span>
                 </div>
+                
+                <Link href="/settings" className="text-[11px] font-bold text-zinc-400 hover:text-white transition-colors tracking-widest">
+                  설정
+                </Link>
+
                 <button onClick={handleLogout} className="text-[11px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest">
                   Logout
                 </button>
@@ -115,12 +124,11 @@ export default function Header() {
           </div>
         </div>
 
-        {/* --- [모바일 버전 햄버거 버튼] --- */}
+        {/* --- [모바일 버전 버튼] --- */}
         <button 
           className="md:hidden text-zinc-400 hover:text-white p-2 z-50"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {/* 메뉴가 열려있으면 'X', 닫혀있으면 '햄버거(三)' 아이콘 표시 */}
           {isMobileMenuOpen ? (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -133,14 +141,13 @@ export default function Header() {
         </button>
       </div>
 
-      {/* --- [모바일 버전 드롭다운 메뉴] --- */}
-      {/* isMobileMenuOpen이 true일 때만 화면에 렌더링됩니다 */}
+      {/* --- [모바일 버전 드롭다운] --- */}
       {isMobileMenuOpen && (
         <div className="absolute top-20 left-0 w-full bg-zinc-950/95 backdrop-blur-xl border-b border-white/10 flex flex-col md:hidden shadow-2xl">
-          
           <nav className="flex flex-col px-6 py-6 gap-6 text-lg">
             <Link href="/about" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">소개</Link>
             <Link href="/projects" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">프로젝트</Link>
+            <Link href="/sandbox" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">AI 샌드박스</Link>
             <Link href="/contact" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">문의하기</Link>
           </nav>
 
@@ -153,7 +160,10 @@ export default function Header() {
                   {role === 'admin' ? (
                     <span className="bg-gradient-to-r from-[#B4BEFF] to-[#CA57FF] bg-clip-text text-transparent font-bold">관리자</span>
                   ) : (
-                    <span className="text-zinc-200 font-medium">{user.user_metadata?.nickname || user.email?.split('@')[0]}</span>
+                    // 💡 5. 모바일도 DB nickname을 우선 적용
+                    <span className="text-zinc-200 font-medium">
+                      {nickname || user.user_metadata?.nickname || user.email?.split('@')[0]}
+                    </span>
                   )}
                   <span className="text-zinc-500">님 환영합니다</span>
                 </div>
@@ -164,6 +174,10 @@ export default function Header() {
                   </Link>
                 )}
                 
+                <Link href="/settings" onClick={handleLinkClick} className="text-left font-bold text-zinc-400 hover:text-white">
+                  계정 설정
+                </Link>
+
                 <button onClick={handleLogout} className="text-left font-bold text-zinc-500 hover:text-white uppercase tracking-widest">
                   Logout
                 </button>

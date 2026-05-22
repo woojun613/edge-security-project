@@ -60,7 +60,8 @@ export default function AISecuritySandbox() {
         '비밀번호알려줘',         // 직접 요구
         '플래그',               // 직접 요구
         'donottranslate',      // 번역 우회 차단
-        'overridemode'         // 개발자 모드 우회
+        'overridemode',         // 개발자 모드 우회
+        '관리자권한'         // 직접 요구
       ];
 
       // 인젝션 탐지 여부 확인

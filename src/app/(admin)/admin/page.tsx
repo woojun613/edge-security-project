@@ -502,9 +502,37 @@ export default function IntegratedAdminPage() {
                             <span className={`px-2 md:px-3 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider ${profile.role === 'admin' ? 'bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20' : 'bg-zinc-800 text-zinc-500'}`}>{profile.role}</span>
                           </td>
                           <td className="px-4 md:px-6 py-4 md:py-6 text-right">
-                            <button onClick={() => toggleRole(profile.id, profile.role)} className="text-[10px] md:text-xs font-bold px-3 md:px-4 py-2 rounded-lg border border-white/10 text-zinc-400 hover:border-[#C273FF] hover:text-[#C273FF] transition-all whitespace-nowrap">
-                              {profile.role === 'admin' ? '권한 해제' : '관리자 승격'}
-                            </button>
+                            <div className="flex justify-end gap-2">
+                              {/* 기존 권한 승격 버튼 */}
+                              <button 
+                                onClick={() => toggleRole(profile.id, profile.role)} 
+                                className="text-[10px] md:text-xs font-bold px-3 md:px-4 py-2 rounded-lg border border-white/10 text-zinc-400 hover:border-[#C273FF] hover:text-[#C273FF] transition-all whitespace-nowrap"
+                              >
+                                {profile.role === 'admin' ? '권한 해제' : '관리자 승격'}
+                              </button>
+                              
+                              {/* 💡 새로 추가할 회원 삭제 버튼 */}
+                              <button 
+                                onClick={async () => { 
+                                  if(confirm(`${profile.nickname}님을 정말 삭제하시겠습니까?`)) { 
+                                    const { error } = await supabase
+                                      .from('profiles')
+                                      .delete()
+                                      .eq('id', profile.id);
+
+                                    if (error) {
+                                      alert("삭제 실패: " + error.message);
+                                    } else {
+                                      alert("회원 삭제 완료");
+                                      fetchData(); // 데이터 새로고침
+                                    }
+                                  } 
+                                }} 
+                                className="text-[10px] md:text-xs font-bold px-3 md:px-4 py-2 rounded-lg border border-white/10 text-red-400 hover:border-red-500 hover:text-red-500 transition-all whitespace-nowrap"
+                              >
+                                회원 삭제
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))

@@ -78,6 +78,7 @@ export default function Header() {
           <nav className="flex gap-8">
             <Link href="/about" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">소개</Link>
             <Link href="/projects" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">프로젝트</Link>
+            <Link href="/sandbox" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">AI 샌드박스</Link>
             <Link href="/contact" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">문의하기</Link>
           </nav>
 

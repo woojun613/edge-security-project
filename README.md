@@ -2,12 +2,15 @@
 기술부터 사람까지, 보안의 모든 영역을 함께 지키는 엣지시큐리티(Edge Security)의 공식 플랫폼입니다. 
 당사의 웹 보안 컨설팅 역량과 실시간 보안 분석 기술을 시각화하여 제공합니다.
 
-# 포트폴리오 사이트
-https://edge-security-project.vercel.app/
+### 🚀 [Edge Security 라이브 데모 접속하기](https://edge-security-project.vercel.app/)
+*(클릭 시 포트폴리오 사이트로 즉시 이동합니다)*
 
-# 관리자 계정 로그인
-- 아이디 : admin@admin.com
-- 비밀번호 : admin123
+### 🔐 체험용 관리자 계정 (Admin Access)
+관리자 전용 대시보드 및 실시간 칸반 보드 기능을 테스트해 보실 수 있습니다.
+
+| 역할 (Role) | 접속 아이디 (Email) | 비밀번호 (Password) |
+| :--- | :--- | :--- |
+| **최고 관리자** | `admin@admin.com` | `admin123` |
 
 ## 🌍 Global Threat Radar: 실시간 3D 보안 관제 시각화
 대규모 엔터프라이즈 환경의 보안 관제 센터(SOC)를 웹 브라우저에 그대로 구현한 3D 트래픽 시각화 시스템입니다.

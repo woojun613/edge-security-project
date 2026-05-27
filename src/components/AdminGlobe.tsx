@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-// Next.js 환경에서 서버/클라이언트 렌더링 충돌을 막기 위해 dynamic import를 사용합니다 (핵심!)
+// Next.js 환경에서 서버/클라이언트 렌더링 충돌을 막기 위해 dynamic import를 사용합니다
 import dynamic from 'next/dynamic';
 
 // react-globe.gl을 클라이언트에서만 렌더링하도록 강제 설정
@@ -57,7 +57,7 @@ export default function AdminGlobe({ lastViewTime = 0 }: { lastViewTime?: number
       {/* 백그라운드 보라색 빛 반사 오라 */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#C273FF]/15 blur-[80px] rounded-full pointer-events-none z-0"/>
       
-      {/* 💡 에러의 주범이었던 주석들을 속성 리스트 밖으로 전부 빼냈습니다! */}
+      {/* 에러의 주범이었던 주석들을 속성 리스트 밖으로 */}
       <Globe
         ref={globeRef}
         globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"

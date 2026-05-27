@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import createGlobe from 'cobe'; 
 import AdminGlobe from '@/components/AdminGlobe';
 
-// 💡 1. 실시간 3D 글로벌 관제 레이더 컴포넌트 (색상 최적화)
+// 실시간 3D 글로벌 관제 레이더 컴포넌트 (색상 최적화)
 function ThreatGlobe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -24,7 +24,6 @@ function ThreatGlobe() {
       diffuse: 1.2,
       mapSamples: 15000, // 대륙 입자 밀도 증가
       mapBrightness: 6,
-      // 💡 암흑 배경에서도 대륙 형체가 완벽히 보이도록 그리드 색상 및 밝기 상향 조정
       baseColor: [0.2, 0.2, 0.25], 
       glowColor: [0.15, 0.15, 0.2], 
       markerColor: [239 / 255, 68 / 255, 68 / 255], // 위협 포인트 (레드)
@@ -299,7 +298,7 @@ export default function IntegratedAdminPage() {
             /* TAB 1: 트래픽 종합 스탯 관제 */
             <motion.div key="analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               
-              {/* 📡 3D 위협 관제 센터 레이더 뷰 레이아웃 */}
+              {/* 3D 위협 관제 센터 레이더 뷰 레이아웃 */}
               <div className="grid grid-cols-1 lg:grid-cols-3 bg-zinc-900/40 border border-white/5 rounded-3xl p-6 gap-6 items-center overflow-hidden">
                 <div className="lg:col-span-2 flex flex-col items-center justify-center relative bg-black/20 rounded-2xl py-6 border border-white/[0.02]">
                   <div className="absolute top-4 left-6 text-left">
@@ -511,7 +510,7 @@ export default function IntegratedAdminPage() {
                                 {profile.role === 'admin' ? '권한 해제' : '관리자 승격'}
                               </button>
                               
-                              {/* 💡 새로 추가할 회원 삭제 버튼 */}
+                              {/* 회원 삭제 버튼 */}
                               <button 
                                 onClick={async () => { 
                                   if(confirm(`${profile.nickname}님을 정말 삭제하시겠습니까?`)) { 

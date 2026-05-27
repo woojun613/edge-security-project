@@ -47,7 +47,7 @@ export default function AISecuritySandbox() {
     setInput('');
     setIsTyping(true);
 
-    // 💡 비용 0원 우회를 위한 프론트엔드 인젝션 탐지 패턴 엔진
+    // 비용 0원 우회를 위한 프론트엔드 인젝션 탐지 패턴 엔진
     setTimeout(() => {
       const lowerInput = currentInput.toLowerCase().replace(/\s+/g, '');
       

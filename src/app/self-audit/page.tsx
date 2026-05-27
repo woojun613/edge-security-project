@@ -115,8 +115,9 @@ export default function SelfAuditPage() {
         </div>
 
         {/* 우측: 실시간 결과 리포트 시각화 */}
-        <div className="flex justify-center">
-          <div className="relative w-full max-w-md aspect-square bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-[40px] shadow-2xl flex flex-col items-center justify-center p-12 text-center overflow-hidden">
+        <div className="flex justify-center mt-10 lg:mt-0">
+          {/* 💡 수정 1: 모바일에서는 최소 높이(min-h)를 보장하고, PC(lg)에서만 1:1 비율(aspect-square) 적용 */}
+          <div className="relative w-full max-w-md min-h-[420px] lg:aspect-square bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-[30px] lg:rounded-[40px] shadow-2xl flex flex-col items-center justify-center p-8 lg:p-12 text-center overflow-hidden">
             
             {/* 장식용 배경 광원 */}
             <div className="absolute top-0 left-0 w-full h-full bg-[#C273FF]/5 blur-[100px] pointer-events-none" />
@@ -125,28 +126,31 @@ export default function SelfAuditPage() {
               key={auditResult.grade}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="relative z-10"
+              className="relative z-10 flex flex-col items-center"
             >
-              <div className={`text-[120px] font-black leading-none mb-4 ${auditResult.color}`}>
+              {/* 💡 수정 2: 모바일 폰트 사이즈 축소 (90px) 및 마진 최적화 */}
+              <div className={`text-[90px] lg:text-[120px] font-black leading-none mb-3 lg:mb-4 ${auditResult.color}`}>
                 {auditResult.grade}
               </div>
-              <div className="text-2xl font-bold mb-2">보안 점수: {auditResult.finalScore}점</div>
-              <p className="text-zinc-500 text-sm mb-10 max-w-[200px] mx-auto">
+              <div className="text-xl lg:text-2xl font-bold mb-2">보안 점수: {auditResult.finalScore}점</div>
+              
+              {/* 💡 수정 3: 모바일 텍스트 크기 축소 및 버튼과의 간격(mb-8) 확실히 확보 */}
+              <p className="text-zinc-500 text-xs lg:text-sm mb-8 lg:mb-10 max-w-[220px] mx-auto">
                 {auditResult.message}
               </p>
 
               <Link 
                 href="/contact" 
-                className="inline-block px-8 py-4 bg-white text-black text-sm font-bold rounded-full hover:bg-[#C273FF] hover:text-white transition-all transform hover:scale-105 active:scale-95"
+                className="inline-block px-6 py-3.5 lg:px-8 lg:py-4 bg-white text-black text-xs lg:text-sm font-bold rounded-full hover:bg-[#C273FF] hover:text-white transition-all transform hover:scale-105 active:scale-95 whitespace-nowrap shadow-lg"
               >
                 상세 진단 리포트 신청하기
               </Link>
             </motion.div>
 
-            {/* 하단 장식선 */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-1">
+            {/* 하단 장식선 (모바일 크기 최적화) */}
+            <div className="absolute bottom-6 lg:bottom-10 left-1/2 -translate-x-1/2 flex gap-1.5">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className={`w-8 h-1 rounded-full ${i < (auditResult.finalScore/20) ? 'bg-[#C273FF]' : 'bg-zinc-800'}`} />
+                <div key={i} className={`w-6 h-1 lg:w-8 lg:h-1 rounded-full ${i < (auditResult.finalScore/20) ? 'bg-[#C273FF]' : 'bg-zinc-800'}`} />
               ))}
             </div>
           </div>

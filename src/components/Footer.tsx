@@ -1,10 +1,10 @@
 import Link from "next/link";
+import EmailCopyButton from "./EmailCopyButton";
 
 export default function Footer() {
   return (
     <footer className="bg-zinc-950 border-t border-white/5 py-16 px-6">
       <div className="max-w-7xl mx-auto">
-        {/* 💡 기존 4칸(grid-cols-4)에서 5칸(grid-cols-5)으로 변경하여 메뉴를 두 그룹으로 나눴습니다. */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-12 mb-12">
           
           {/* 로고 및 정보 (PC에서 2칸 차지) */}
@@ -15,7 +15,7 @@ export default function Footer() {
             <div className="space-y-2 text-sm text-zinc-500">
               <p>경기도 화성시 동탄첨단산업2로 43, 동탄 G타워 503호</p>
               <p>대표전화: 031-376-2252</p>
-              <p>이메일: edgesec@edgesec.co.kr</p>
+              <EmailCopyButton />
             </div>
           </div>
 

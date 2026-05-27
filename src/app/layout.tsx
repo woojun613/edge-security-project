@@ -6,6 +6,7 @@ import SideMenu from "@/components/SideMenu";
 import PageViewTracker from "@/components/PageViewTracker";
 import SecurityReportBanner from "@/components/SecurityReportBanner";
 import SmoothScroll from "@/components/SmoothScroll"; 
+import ScrollProgress from "@/components/ScrollProgress"; 
 
 export const metadata: Metadata = {
   title: "Edge Security | 정보보안 컨설팅",
@@ -19,9 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className="bg-black text-white antialiased flex flex-col min-h-screen relative"
         suppressHydrationWarning
       >
+        <ScrollProgress />
         <PageViewTracker />
         
-        {/* 💡 SmoothScroll로 화면 전체를 감싸줍니다. */}
+        {/* SmoothScroll로 화면 전체를 감싸줍니다. */}
         <SmoothScroll>
           <div className="relative z-[100]">
             <Header />

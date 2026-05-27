@@ -74,11 +74,12 @@ export default function Header() {
 
         {/* --- [PC 버전] --- */}
         <div className="hidden md:flex items-center gap-8">
-          <nav className="flex gap-8">
+          <nav className="flex items-center gap-8">
             <Link href="/about" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">소개</Link>
             <Link href="/projects" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">프로젝트</Link>
             <Link href="/sandbox" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">AI 샌드박스</Link>
-            <Link href="/contact" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">문의하기</Link>
+            <Link href="/self-audit" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">보안 진단</Link>
+            <Link href="/contact" className="text-sm font-bold px-4 py-2 bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20 rounded-lg hover:bg-[#C273FF] hover:text-white transition-all">문의하기</Link>
           </nav>
 
           <div className="w-[1px] h-4 bg-white/10" />

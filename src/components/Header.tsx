@@ -29,7 +29,7 @@ export default function Header() {
     }
   };
 
-  // 콘솔 이스터에그 (개발자들을 위한 환영 메시지)
+  // 콘솔 이스터에그
   useEffect(() => {
     const asciiArt = `
     ███████╗██████╗  ██████╗ ███████╗
@@ -40,7 +40,7 @@ export default function Header() {
     ╚══════╝╚═════╝  ╚═════╝ ╚══════╝
     `;
 
-    // %c 를 사용하면 브라우저 콘솔창에도 CSS 스타일을 먹일 수 있습니다!
+    // %c 를 사용하면 브라우저 콘솔창에도 CSS 스타일을 먹일 수 있습니다
     console.log(
       `%c${asciiArt}`, 
       "color: #C273FF; font-weight: bold; font-family: monospace;"

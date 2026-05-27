@@ -4,9 +4,11 @@ export default function Footer() {
   return (
     <footer className="bg-zinc-950 border-t border-white/5 py-16 px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* 로고 및 정보 */}
-          <div className="col-span-1 md:col-span-2">
+        {/* 💡 기존 4칸(grid-cols-4)에서 5칸(grid-cols-5)으로 변경하여 메뉴를 두 그룹으로 나눴습니다. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-12 mb-12">
+          
+          {/* 로고 및 정보 (PC에서 2칸 차지) */}
+          <div className="col-span-1 sm:col-span-2 md:col-span-2">
             <h2 className="text-white text-xl font-bold tracking-tighter mb-6">
               EDGE SECURITY
             </h2>
@@ -17,13 +19,22 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* 메뉴 링크 */}
+          {/* 카테고리 1: Company (회사 관련) */}
           <div>
-            <h3 className="text-white text-sm font-bold mb-6 uppercase tracking-wider">Menu</h3>
+            <h3 className="text-white text-sm font-bold mb-6 uppercase tracking-wider">Company</h3>
             <ul className="space-y-4 text-sm text-zinc-500">
               <li><Link href="/about" className="hover:text-white transition-colors">소개</Link></li>
-              <li><Link href="/projects" className="hover:text-white transition-colors">프로젝트</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">문의하기</Link></li>
+            </ul>
+          </div>
+
+          {/* 카테고리 2: Services (서비스 및 진단) */}
+          <div>
+            <h3 className="text-white text-sm font-bold mb-6 uppercase tracking-wider">Services</h3>
+            <ul className="space-y-4 text-sm text-zinc-500">
+              <li><Link href="/projects" className="hover:text-white transition-colors">프로젝트</Link></li>
+              <li><Link href="/sandbox" className="hover:text-white transition-colors">AI 샌드박스</Link></li>
+              <li><Link href="/self-audit" className="hover:text-white transition-colors">보안 진단</Link></li>
             </ul>
           </div>
 

@@ -116,7 +116,7 @@ export default function SelfAuditPage() {
 
         {/* 우측: 실시간 결과 리포트 시각화 */}
         <div className="flex justify-center mt-10 lg:mt-0">
-          {/* 💡 수정 1: 모바일에서는 최소 높이(min-h)를 보장하고, PC(lg)에서만 1:1 비율(aspect-square) 적용 */}
+          {/* 모바일에서는 최소 높이(min-h)를 보장하고, PC(lg)에서만 1:1 비율(aspect-square) 적용 */}
           <div className="relative w-full max-w-md min-h-[420px] lg:aspect-square bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-[30px] lg:rounded-[40px] shadow-2xl flex flex-col items-center justify-center p-8 lg:p-12 text-center overflow-hidden">
             
             {/* 장식용 배경 광원 */}
@@ -128,13 +128,13 @@ export default function SelfAuditPage() {
               animate={{ scale: 1, opacity: 1 }}
               className="relative z-10 flex flex-col items-center"
             >
-              {/* 💡 수정 2: 모바일 폰트 사이즈 축소 (90px) 및 마진 최적화 */}
+              {/* 모바일 폰트 사이즈 축소 (90px) 및 마진 최적화 */}
               <div className={`text-[90px] lg:text-[120px] font-black leading-none mb-3 lg:mb-4 ${auditResult.color}`}>
                 {auditResult.grade}
               </div>
               <div className="text-xl lg:text-2xl font-bold mb-2">보안 점수: {auditResult.finalScore}점</div>
               
-              {/* 💡 수정 3: 모바일 텍스트 크기 축소 및 버튼과의 간격(mb-8) 확실히 확보 */}
+              {/* 모바일 텍스트 크기 축소 및 버튼과의 간격(mb-8) 확실히 확보 */}
               <p className="text-zinc-500 text-xs lg:text-sm mb-8 lg:mb-10 max-w-[220px] mx-auto">
                 {auditResult.message}
               </p>

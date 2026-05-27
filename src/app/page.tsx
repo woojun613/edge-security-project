@@ -241,6 +241,8 @@ export default function Home() {
                   src={`/images/main/sub-hero-bg${project.id}.png`} 
                   alt={project.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
                   className="object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
                 />
                 

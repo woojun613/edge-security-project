@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className="bg-black text-white antialiased flex flex-col min-h-screen relative">
+      {/* body 태그에 suppressHydrationWarning을 추가 */}
+      <body 
+        className="bg-black text-white antialiased flex flex-col min-h-screen relative"
+        suppressHydrationWarning
+      >
         {/* 페이지 뷰 트래킹 컴포넌트 */}
         <PageViewTracker />
         {/* 헤더를 최상단(z-100)으로 올려서 사이드 메뉴가 헤더를 못 가리게 방어! */}

@@ -29,6 +29,32 @@ export default function Header() {
     }
   };
 
+  // 콘솔 이스터에그 (개발자들을 위한 환영 메시지)
+  useEffect(() => {
+    const asciiArt = `
+    ███████╗██████╗  ██████╗ ███████╗
+    ██╔════╝██╔══██╗██╔════╝ ██╔════╝
+    █████╗  ██║  ██║██║  ███╗█████╗  
+    ██╔══╝  ██║  ██║██║   ██║██╔══╝  
+    ███████╗██████╔╝╚██████╔╝███████╗
+    ╚══════╝╚═════╝  ╚═════╝ ╚══════╝
+    `;
+
+    // %c 를 사용하면 브라우저 콘솔창에도 CSS 스타일을 먹일 수 있습니다!
+    console.log(
+      `%c${asciiArt}`, 
+      "color: #C273FF; font-weight: bold; font-family: monospace;"
+    );
+    console.log(
+      "%c[EDGE SECURITY] 관리자 콘솔 접근을 환영합니다.", 
+      "color: black; background: #C273FF; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;"
+    );
+    console.log(
+      "%c장우준의 보안 컨설팅 컨셉의 포트폴리오 입니다.\n👉 e-mail: dnwns06@naver.com",
+      "color: #a1a1aa; font-size: 11px; line-height: 1.5;"
+    );
+  }, []);
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -115,7 +141,7 @@ export default function Header() {
                   설정
                 </Link>
 
-                <button onClick={handleLogout} className="text-[11px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest">
+                <button onClick={handleLogout} className="text-[11px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest cursor-pointer">
                   Logout
                 </button>
               </div>

@@ -7,6 +7,7 @@ import PageViewTracker from "@/components/PageViewTracker";
 import SecurityReportBanner from "@/components/SecurityReportBanner";
 import SmoothScroll from "@/components/SmoothScroll"; 
 import ScrollProgress from "@/components/ScrollProgress"; 
+import LoadingScreen from "@/components/LoadingScreen"; 
 
 export const metadata: Metadata = {
   title: "Edge Security | 정보보안 컨설팅",
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className="bg-black text-white antialiased flex flex-col min-h-screen relative"
         suppressHydrationWarning
       >
+        <LoadingScreen />
         <ScrollProgress />
         <PageViewTracker />
         

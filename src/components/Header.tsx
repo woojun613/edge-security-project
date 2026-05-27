@@ -8,14 +8,12 @@ import { supabase } from "@/lib/supabase";
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
-  // 💡 1. 닉네임 상태 추가
   const [nickname, setNickname] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
   const fetchProfile = async (userId: string) => {
     try {
-      // 💡 2. select에 nickname 추가
       const { data, error } = await supabase
         .from('profiles')
         .select('role, nickname')
@@ -24,7 +22,7 @@ export default function Header() {
       
       if (!error && data) {
         setRole(data.role);
-        setNickname(data.nickname); // 💡 3. 닉네임 저장
+        setNickname(data.nickname); 
       }
     } catch (err) {
       console.error("프로필 로드 에러:", err);
@@ -47,7 +45,7 @@ export default function Header() {
         fetchProfile(currentUser.id);
       } else {
         setRole(null);
-        setNickname(null); // 로그아웃 시 초기화
+        setNickname(null); 
       }
     });
 
@@ -88,16 +86,23 @@ export default function Header() {
           <div className="flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-5 text-sm">
+                
+                {/* 💡 [PC] 관리자(admin) 전용 시크릿 메뉴 영역 */}
                 {role === 'admin' && (
-                  <Link href="/admin" className="text-[11px] font-bold px-3 py-1.5 bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20 rounded-lg hover:bg-[#C273FF]/20 transition-all">
-                    관리자 대시보드
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link href="/admin" className="text-[11px] font-bold px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all flex items-center gap-1">
+                      <span>🚨</span> 통합 관리 시스템
+                    </Link>
+                    <Link href="/kanban" className="text-[11px] font-bold px-3 py-1.5 bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20 rounded-lg hover:bg-[#C273FF]/20 transition-all flex items-center gap-1">
+                      <span>📋</span> 칸반 보드
+                    </Link>
+                  </div>
                 )}
+
                 <div className="flex items-center gap-2">
                   {role === 'admin' ? (
                     <span className="bg-gradient-to-r from-[#B4BEFF] to-[#CA57FF] bg-clip-text text-transparent font-bold">관리자</span>
                   ) : (
-                    // 💡 4. DB에서 가져온 nickname을 가장 먼저 보여주도록 우선순위 변경
                     <span className="text-zinc-200 font-medium">
                       {nickname || user.user_metadata?.nickname || user.email?.split('@')[0]}
                     </span>
@@ -160,7 +165,6 @@ export default function Header() {
                   {role === 'admin' ? (
                     <span className="bg-gradient-to-r from-[#B4BEFF] to-[#CA57FF] bg-clip-text text-transparent font-bold">관리자</span>
                   ) : (
-                    // 💡 5. 모바일도 DB nickname을 우선 적용
                     <span className="text-zinc-200 font-medium">
                       {nickname || user.user_metadata?.nickname || user.email?.split('@')[0]}
                     </span>
@@ -168,10 +172,16 @@ export default function Header() {
                   <span className="text-zinc-500">님 환영합니다</span>
                 </div>
                 
+                {/* 💡 [모바일] 관리자(admin) 전용 시크릿 메뉴 영역 */}
                 {role === 'admin' && (
-                  <Link href="/admin" onClick={handleLinkClick} className="text-center font-bold py-3 bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20 rounded-xl">
-                    관리자 대시보드
-                  </Link>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link href="/admin" onClick={handleLinkClick} className="text-center font-bold py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl flex justify-center items-center gap-2">
+                      <span>🚨</span> 통합 관리 시스템
+                    </Link>
+                    <Link href="/kanban" onClick={handleLinkClick} className="text-center font-bold py-3 bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20 rounded-xl flex justify-center items-center gap-2">
+                      <span>📋</span> 칸반 보드
+                    </Link>
+                  </div>
                 )}
                 
                 <Link href="/settings" onClick={handleLinkClick} className="text-left font-bold text-zinc-400 hover:text-white">

@@ -111,7 +111,7 @@ export default function AISecuritySandbox() {
         </div>
         <button 
           onClick={() => setMessages([{ id: 'init', sender: 'ai', text: '가상 AI 에이전트가 초기화되었습니다. 다시 테스트해보세요.' }])}
-          className="text-[11px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="text-[11px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
         >
           리셋
         </button>
@@ -176,7 +176,7 @@ export default function AISecuritySandbox() {
         />
         <button
           type="submit"
-          className="bg-zinc-800 hover:bg-[#C273FF] border border-white/5 text-white text-xs font-bold px-4 rounded-xl transition-all"
+          className="bg-zinc-800 hover:bg-[#C273FF] border border-white/5 text-white text-xs font-bold px-4 rounded-xl transition-all cursor-pointer"
         >
           전송
         </button>

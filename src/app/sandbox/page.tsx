@@ -20,7 +20,6 @@ export default function SandboxPage() {
           </p>
         </div>
 
-        {/* 💡 방금 만든 컴포넌트를 여기에 불러옵니다! */}
         <AISecuritySandbox />
 
         {/* 하단 설명 섹션 */}

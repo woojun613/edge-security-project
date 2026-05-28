@@ -64,6 +64,9 @@ Next.js의 서버 컴포넌트(Server Components)와 ISR(Incremental Static Rege
 - Zero-API Architecture: 별도의 API 라우트 없이 서버 컴포넌트에서 Supabase DB를 직접 호출하여 클라이언트 번들 사이즈를 최소화하고 렌더링 속도를 극대화했습니다.
 - URL-Driven State Management: 검색어(`q`), 정렬(`sort`), 페이지네이션(`page`) 상태를 URL 파라미터로 관리하여, SSR의 SEO 이점과 SPA의 쾌적한 UX를 동시에 달성했습니다. (Supabase `.range()` 쿼리를 활용한 백엔드 단 페이징 최적화 적용)
 - Role-Based Access Control (RBAC): 프론트엔드의 `AdminGuard` 컴포넌트와 데이터베이스의 RLS(Row Level Security) 정책을 이중으로 적용하여, 최고 관리자 계정만 게시글의 작성/수정/삭제가 가능하도록 엄격하게 통제합니다.
+- Secure Commenting & Like System: 사용자 간의 양방향 소통을 위해 로그인 기반의 댓글 및 좋아요 기능을 구현했습니다. 
+   - Relational Data Optimization: `news_comments`와 `comment_likes` 테이블을 1:N 관계로 설계하고, Supabase의 Join 쿼리를 활용해 단일 네트워크 요청으로 댓글과 좋아요 매핑 데이터를 동시에 로드하여 렌더링 성능을 최적화했습니다.
+   - 2-Tier Security Guard: 프론트엔드의 UI 렌더링 가드(본인 댓글에만 수정/삭제 버튼 노출)와 데이터베이스의 RLS 정책(토큰 검증 및 JWT Admin 판별)을 결합하여, API 엔드포인트 탈취 시도에도 데이터가 위변조되지 않는 무결성을 보장합니다.
 
 ## 🧪 Interactive Security Lab: 고객 참여형 보안 진단
 단순한 텍스트 경고를 넘어, 고객이 직접 보안 취약점을 체감할 수 있는 인터랙티브 컴포넌트를 제공합니다.

@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminActionButtons from "@/components/AdminActionButtons";
+import CommentSection from "@/components/CommentSection";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -65,7 +66,8 @@ export default async function SecurityNewsDetailPage({ params }: { params: Promi
         </div>
 
         <AdminActionButtons newsId={newsId} />
-
+        <CommentSection newsId={newsId} />
+        
       </div>
     </main>
   );

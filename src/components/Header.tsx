@@ -105,6 +105,7 @@ export default function Header() {
             <Link href="/projects" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">프로젝트</Link>
             <Link href="/sandbox" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">AI 샌드박스</Link>
             <Link href="/self-audit" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">보안 진단</Link>
+            <Link href="/security-news" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">보안 뉴스</Link>
             <Link href="/contact" className="text-sm font-bold px-4 py-2 bg-[#C273FF]/10 text-[#C273FF] border border-[#C273FF]/20 rounded-lg hover:bg-[#C273FF] hover:text-white transition-all">문의하기</Link>
           </nav>
 

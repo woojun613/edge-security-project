@@ -22,6 +22,7 @@ export default async function SecurityNewsPage({
   const sort = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'latest';
   
   // 💡 1. 현재 페이지 번호 가져오기 (기본값 1)
+  const level = typeof resolvedParams.level === 'string' ? resolvedParams.level : 'all';
   const currentPage = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const ITEMS_PER_PAGE = 10; // 한 페이지당 10개씩
 
@@ -33,6 +34,11 @@ export default async function SecurityNewsPage({
   let query = supabase
     .from("security_alerts")
     .select("*", { count: "exact" }); // 데이터와 함께 전체 개수(count)를 가져옴
+
+  // 💡 2. 선택된 위협 등급(level)이 'all'이 아니면 해당 등급만 필터링하도록 추가
+  if (level !== 'all') {
+    query = query.eq('level', level);
+  }
 
   if (q) {
     query = query.or(`title.ilike.%${q}%,content.ilike.%${q}%`);

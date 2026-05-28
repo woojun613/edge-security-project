@@ -8,31 +8,36 @@ export default function SearchFilterBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // URL에서 현재 검색어와 정렬 상태를 읽어옵니다.
   const currentQ = searchParams.get("q") || "";
   const currentSort = searchParams.get("sort") || "latest";
+  // 💡 URL에서 현재 선택된 등급(level) 상태를 읽어옵니다. (기본값: all)
+  const currentLevel = searchParams.get("level") || "all"; 
 
   const [query, setQuery] = useState(currentQ);
 
-  // 검색 버튼 클릭 또는 엔터 입력 시 URL 업데이트
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUrl(query, currentSort);
+    updateUrl(query, currentSort, currentLevel);
   };
 
-  // 셀렉트 박스 변경 시 URL 업데이트
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSort = e.target.value;
-    updateUrl(query, newSort);
+    updateUrl(query, newSort, currentLevel);
   };
 
-  // URL 쿼리 파라미터를 조작하는 함수
-  const updateUrl = (q: string, sort: string) => {
+  // 💡 위협 등급 변경 시 URL 업데이트
+  const handleLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLevel = e.target.value;
+    updateUrl(query, currentSort, newLevel);
+  };
+
+  // 💡 파라미터에 level 추가
+  const updateUrl = (q: string, sort: string, level: string) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (sort && sort !== "latest") params.set("sort", sort);
+    if (level && level !== "all") params.set("level", level); 
     
-    // URL을 변경하면 Next.js가 알아서 서버 컴포넌트를 다시 렌더링합니다.
     router.push(`/security-news?${params.toString()}`);
   };
 
@@ -52,16 +57,31 @@ export default function SearchFilterBar() {
         </button>
       </form>
 
-      {/* 📊 정렬 셀렉트 박스 */}
-      <select
-        value={currentSort}
-        onChange={handleSortChange}
-        className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#C273FF] transition cursor-pointer min-w-[120px]"
-      >
-        <option value="latest">최신순</option>
-        <option value="oldest">과거순</option>
-        <option value="title">가나다순</option>
-      </select>
+      {/* 💡 필터 및 정렬 컨트롤 영역 (모바일 반응형 적용) */}
+      <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+        {/* 🛡️ 위협 등급 셀렉트 박스 (NEW) */}
+        <select
+          value={currentLevel}
+          onChange={handleLevelChange}
+          className="flex-1 sm:flex-none bg-zinc-900 border border-zinc-800 rounded-lg px-2 sm:px-4 py-2 text-white text-sm focus:outline-none focus:border-[#C273FF] transition cursor-pointer min-w-[110px]"
+        >
+          <option value="all">모든 등급</option>
+          <option value="Critical">🔴 Critical</option>
+          <option value="Warning">🟡 Warning</option>
+          <option value="Info">🔵 Info</option>
+        </select>
+
+        {/* 📊 정렬 셀렉트 박스 */}
+        <select
+          value={currentSort}
+          onChange={handleSortChange}
+          className="flex-1 sm:flex-none bg-zinc-900 border border-zinc-800 rounded-lg px-2 sm:px-4 py-2 text-white text-sm focus:outline-none focus:border-[#C273FF] transition cursor-pointer min-w-[100px]"
+        >
+          <option value="latest">최신순</option>
+          <option value="oldest">과거순</option>
+          <option value="title">가나다순</option>
+        </select>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase"; // 차장님이 세팅해둔 클라이언트
+import { supabase } from "@/lib/supabase";
 import AdminGuard from "@/components/AdminGuard";
 import Link from "next/link";
 

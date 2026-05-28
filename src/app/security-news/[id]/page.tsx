@@ -26,9 +26,7 @@ export default async function SecurityNewsDetailPage({ params }: { params: Promi
   }
 
   return (
-    // 💡 모바일 상단 여백축소(pt-24 -> md:pt-32), 좌우 패딩 최적화(px-4 -> sm:px-6)
     <main className="min-h-screen bg-black text-white pt-24 md:pt-32 pb-20 px-4 sm:px-6">
-      {/* 💡 전체 본문 카드의 패딩을 모바일 환경에 맞게 축소 (p-5 -> sm:p-8 -> md:p-12) */}
       <div className="max-w-4xl mx-auto bg-zinc-900/30 border border-zinc-800 rounded-xl p-5 sm:p-8 md:p-12">
         
         {/* 상단: 뒤로가기 버튼 (모바일 마진 축소) */}
@@ -67,7 +65,7 @@ export default async function SecurityNewsDetailPage({ params }: { params: Promi
 
         <AdminActionButtons newsId={newsId} />
         <CommentSection newsId={newsId} />
-        
+
       </div>
     </main>
   );

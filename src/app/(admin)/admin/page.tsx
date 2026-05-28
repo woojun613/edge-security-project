@@ -87,7 +87,7 @@ interface SecurityAlert {
   created_at: string;
 }
 
-// 💡 댓글 인터페이스 추가
+// 댓글 인터페이스 추가
 interface AdminComment {
   id: number;
   news_id: number;
@@ -98,7 +98,7 @@ interface AdminComment {
 }
 
 export default function IntegratedAdminPage() {
-  // 💡 상태에 'comments' 추가
+  // 상태에 'comments' 추가
   const [activeTab, setActiveTab] = useState<'analytics' | 'contacts' | 'members' | 'posts' | 'comments'>('analytics');
   
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -128,7 +128,7 @@ export default function IntegratedAdminPage() {
   const [postPage, setPostPage] = useState(1);
   const POSTS_PER_PAGE = 10;
 
-  // 💡 댓글 제어 상태 추가
+  // 댓글 제어 상태 추가
   const [commentSearch, setCommentSearch] = useState('');
   const [commentSort, setCommentSort] = useState<'latest' | 'oldest'>('latest');
   const [commentPage, setCommentPage] = useState(1);
@@ -206,7 +206,7 @@ export default function IntegratedAdminPage() {
       const { data } = await supabase.from('security_alerts').select('*');
       setPosts(data || []);
     } else if (activeTab === 'comments') {
-      // 💡 댓글과 해당 댓글이 달린 원문 게시물 제목을 조인(Join)해서 가져옵니다.
+      // 댓글과 해당 댓글이 달린 원문 게시물 제목을 조인(Join)해서 가져옵니다.
       const { data } = await supabase.from('news_comments').select('*, security_alerts(title)');
       setAdminComments(data || []);
     }
@@ -271,7 +271,7 @@ export default function IntegratedAdminPage() {
   const totalPostPages = Math.max(Math.ceil(processedPosts.length / POSTS_PER_PAGE), 1);
   const currentPosts = processedPosts.slice((postPage - 1) * POSTS_PER_PAGE, postPage * POSTS_PER_PAGE);
 
-  // 💡 댓글 캐싱 및 필터링
+  // 댓글 캐싱 및 필터링
   const processedComments = useMemo(() => {
     let result = [...adminComments];
     if (commentSearch.trim()) {
@@ -372,7 +372,7 @@ export default function IntegratedAdminPage() {
                 <div className="bg-zinc-900/50 border border-white/5 p-4 md:p-6 rounded-2xl"><p className="text-zinc-500 text-xs md:text-sm font-bold uppercase tracking-wider mb-1 text-balance">주간 누적 방문자</p><p className="text-2xl md:text-4xl font-black text-white">{stats.total} <span className="text-zinc-500 text-xs md:text-sm font-normal ml-1">명</span></p></div>
               </div>
 
-              {/* 💡 완전히 복구된 주간 방문 트래픽 차트 */}
+              {/* 주간 방문 트래픽 차트 */}
               <div className="bg-zinc-900/50 border border-white/5 p-4 md:p-8 rounded-2xl">
                 <h3 className="text-lg md:text-xl font-bold mb-6 md:mb-8">주간 방문자 추이</h3>
                 {stats.total === 0 ? (
@@ -604,7 +604,7 @@ export default function IntegratedAdminPage() {
             </motion.div>
           ) : (
             
-            /* 💡 TAB 5: 댓글 관리 (NEW!) */
+            /* TAB 5: 댓글 관리 */
             <motion.div key="comments" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
               
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-zinc-900/50 border border-white/5 p-4 rounded-xl gap-4">
@@ -662,7 +662,7 @@ export default function IntegratedAdminPage() {
                           </td>
                           <td className="px-4 md:px-6 py-4 md:py-6 text-right">
                             <div className="flex justify-end gap-2">
-                              {/* 💡 관리자용 빠른 수정 프롬프트 */}
+                              {/* 관리자용 빠른 수정 프롬프트 */}
                               <button 
                                 onClick={async () => {
                                   const newContent = window.prompt("댓글 내용을 수정합니다:", comment.content);

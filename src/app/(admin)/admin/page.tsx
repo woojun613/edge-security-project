@@ -24,8 +24,8 @@ function ThreatGlobe() {
       diffuse: 1.2,
       mapSamples: 15000,
       mapBrightness: 6,
-      baseColor: [0.2, 0.2, 0.25], 
-      glowColor: [0.15, 0.15, 0.2], 
+      baseColor: [0.2, 0.2, 0.25],
+      glowColor: [0.15, 0.15, 0.2],
       markerColor: [239 / 255, 68 / 255, 68 / 255],
       markers: [
         { location: [37.24, 127.07], size: 0.08 },
@@ -304,7 +304,7 @@ export default function IntegratedAdminPage() {
                 { id: 'contacts', label: '📩 문의 내역' },
                 { id: 'members', label: '👥 회원 관리' },
                 { id: 'posts', label: '📝 게시글 관리' },
-                { id: 'comments', label: '💬 댓글 관리' } // 💡 탭 추가
+                { id: 'comments', label: '💬 댓글 관리' }
               ].map((tab) => (
                 <button
                   key={tab.id}

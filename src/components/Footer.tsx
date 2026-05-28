@@ -50,13 +50,31 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* 하단 저작권 표시 */}
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-zinc-600">
-          <p>© 2026 EDGE SECURITY. All rights reserved.</p>
+        {/* 하단 저작권 표시 & 시스템 상태 & 약관 링크 (레이아웃 수정됨) */}
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-zinc-600">
+          
+          {/* 좌측: 저작권 텍스트 + 라이브 상태 펄스 그룹화 */}
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <p>© 2026 EDGE SECURITY. All rights reserved.</p>
+            
+            {/* 🟢 라이브 상태 펄스 */}
+            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-emerald-400 text-[10px] font-bold tracking-widest uppercase">
+                All Systems Online
+              </span>
+            </div>
+          </div>
+
+          {/* 우측: 약관 링크 */}
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link>
             <Link href="/terms" className="hover:text-white transition-colors">이용약관</Link>
           </div>
+
         </div>
       </div>
     </footer>

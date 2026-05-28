@@ -181,6 +181,8 @@ export default function Header() {
             <Link href="/about" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">소개</Link>
             <Link href="/projects" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">프로젝트</Link>
             <Link href="/sandbox" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">AI 샌드박스</Link>
+            <Link href="/self-audit" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">보안 진단</Link>
+            <Link href="/security-news" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">보안 뉴스</Link>
             <Link href="/contact" onClick={handleLinkClick} className="font-medium text-zinc-300 hover:text-white">문의하기</Link>
           </nav>
 

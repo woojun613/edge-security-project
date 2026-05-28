@@ -17,7 +17,6 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  /* 프리텐다드(Pretendard) */
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
   -webkit-font-smoothing: antialiased; /* 글자를 더 매끄럽게 처리 */
 }
@@ -35,3 +34,17 @@ nextjs-portal {
   transform: scale(0) !important;
 }
 
+/* 글로벌 스크롤바 커스텀 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #000000; /* 트랙 배경은 완전 블랙 */
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a; /* 징크(zinc) 색상 기본 썸 */
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C273FF; /* 마우스 오버 시 시그니처 컬러로 발광 */
+}

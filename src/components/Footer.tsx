@@ -24,6 +24,7 @@ export default function Footer() {
             <h3 className="text-white text-sm font-bold mb-6 uppercase tracking-wider">Company</h3>
             <ul className="space-y-4 text-sm text-zinc-500">
               <li><Link href="/about" className="hover:text-white transition-colors">소개</Link></li>
+              <li><Link href="/security-news" className="hover:text-white transition-colors">보안 뉴스</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">문의하기</Link></li>
             </ul>
           </div>

@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import AdminGuard from "@/components/AdminGuard";
 import SearchFilterBar from "@/components/SearchFilterBar";
-import Pagination from "@/components/Pagination"; // 💡 페이지네이션 컴포넌트 추가
+import Pagination from "@/components/Pagination"; // 페이지네이션 컴포넌트 추가
 
 export const revalidate = 60; 
 

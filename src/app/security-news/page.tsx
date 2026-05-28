@@ -21,21 +21,21 @@ export default async function SecurityNewsPage({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : '';
   const sort = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'latest';
   
-  // 💡 1. 현재 페이지 번호 가져오기 (기본값 1)
+  // 현재 페이지 번호 가져오기 (기본값 1)
   const level = typeof resolvedParams.level === 'string' ? resolvedParams.level : 'all';
   const currentPage = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) : 1;
   const ITEMS_PER_PAGE = 10; // 한 페이지당 10개씩
 
-  // 💡 2. 데이터 가져올 범위(Range) 계산 (예: 1페이지는 0~9, 2페이지는 10~19)
+  // 데이터 가져올 범위(Range) 계산 (예: 1페이지는 0~9, 2페이지는 10~19)
   const from = (currentPage - 1) * ITEMS_PER_PAGE;
   const to = from + ITEMS_PER_PAGE - 1;
 
-  // 3. Supabase 쿼리 생성 (게시글 수 count 속성 추가)
+  // Supabase 쿼리 생성 (게시글 수 count 속성 추가)
   let query = supabase
     .from("security_alerts")
     .select("*", { count: "exact" }); // 데이터와 함께 전체 개수(count)를 가져옴
 
-  // 💡 2. 선택된 위협 등급(level)이 'all'이 아니면 해당 등급만 필터링하도록 추가
+  // 선택된 위협 등급(level)이 'all'이 아니면 해당 등급만 필터링하도록 추가
   if (level !== 'all') {
     query = query.eq('level', level);
   }
@@ -52,17 +52,17 @@ export default async function SecurityNewsPage({
     query = query.order("created_at", { ascending: false });
   }
 
-  // 💡 4. 페이징 처리 적용 (10개씩 끊어오기)
+  // 페이징 처리 적용 (10개씩 끊어오기)
   query = query.range(from, to);
 
   // 최종 데이터 및 전체 카운트 가져오기
   const { data: newsList, count } = await query;
   
-  // 💡 5. 총 페이지 수 계산
+  // 총 페이지 수 계산
   const totalPages = count ? Math.ceil(count / ITEMS_PER_PAGE) : 0;
 
   return (
-    // 💡 모바일 좌우 여백 최적화 (px-6 -> px-4 sm:px-6)
+    // 모바일 좌우 여백 최적화 (px-6 -> px-4 sm:px-6)
     <main className="min-h-screen bg-black text-white pt-32 pb-20 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
         
@@ -120,7 +120,7 @@ export default async function SecurityNewsPage({
           )}
         </div>
 
-        {/* 💡 페이지네이션 컴포넌트 렌더링 */}
+        {/* 페이지네이션 컴포넌트 렌더링 */}
         <Pagination totalPages={totalPages} currentPage={currentPage} />
 
       </div>

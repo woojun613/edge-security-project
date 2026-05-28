@@ -323,7 +323,7 @@ export default function IntegratedAdminPage() {
           
           <button 
             onClick={fetchData}
-            className="w-full md:w-auto px-6 py-3 md:py-2 bg-zinc-900 border border-white/10 rounded-lg hover:bg-zinc-800 transition-all text-sm font-bold shrink-0"
+            className="w-full md:w-auto px-6 py-3 md:py-2 bg-zinc-900 border border-white/10 rounded-lg hover:bg-zinc-800 transition-all text-sm font-bold shrink-0 cursor-pointer"
           >
             새로고침
           </button>
